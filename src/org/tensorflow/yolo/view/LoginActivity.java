@@ -84,6 +84,8 @@ public class LoginActivity extends Activity {
                         if (task.isSuccessful()) {
                             // 로그인 성공
                             Toast.makeText(LoginActivity.this, R.string.success_login, Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(LoginActivity.this, EditUserInfoActivity.class);
+                            startActivity(intent);
                         } else {
                             // 로그인 실패
                             Toast.makeText(LoginActivity.this, R.string.failed_login, Toast.LENGTH_SHORT).show();
