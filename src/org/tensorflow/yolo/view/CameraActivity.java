@@ -2,6 +2,7 @@ package org.tensorflow.yolo.view;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Build;
@@ -23,6 +24,7 @@ import static org.tensorflow.yolo.Config.LOGGING_TAG;
  */
 public abstract class CameraActivity extends Activity implements OnImageAvailableListener {
     private static final int PERMISSIONS_REQUEST = 1;
+    public static Context activity;
 
     private Handler handler;
     private HandlerThread handlerThread;
@@ -33,6 +35,8 @@ public abstract class CameraActivity extends Activity implements OnImageAvailabl
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         setContentView(R.layout.activity_camera);
+
+        activity = this;
 
         if (hasPermission()) {
             setFragment();
@@ -134,6 +138,12 @@ public abstract class CameraActivity extends Activity implements OnImageAvailabl
         if (overlay != null) {
             overlay.addCallback(callback);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.e("CameraActivity", "onDestroy");
     }
 
     protected abstract void onPreviewSizeChosen(final Size size, final int rotation);

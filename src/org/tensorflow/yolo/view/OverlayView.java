@@ -1,13 +1,16 @@
 package org.tensorflow.yolo.view;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import org.tensorflow.yolo.Config;
 import org.tensorflow.yolo.model.BoxPosition;
@@ -27,9 +30,11 @@ public class OverlayView extends View {
     private List<Recognition> results;
     private List<Integer> colors;
     private float resultsViewHeight;
+    private Context context;
 
     public OverlayView(final Context context, final AttributeSet attrs) {
         super(context, attrs);
+        this.context = context;
         paint = new Paint();
         paint.setColor(Color.GREEN);
         paint.setStyle(Paint.Style.STROKE);
@@ -42,6 +47,29 @@ public class OverlayView extends View {
 
     public void addCallback(final DrawCallback callback) {
         callbacks.add(callback);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN: {
+                if(results == null) {
+                    return super.onTouchEvent(event);
+                }
+
+                for (int i = 0; i < results.size(); i++) {
+                    RectF box = reCalcSize(results.get(i).getLocation());
+                    if (box.contains(event.getX(), event.getY())) {
+                        Intent intent = new Intent(CameraActivity.activity, UserActivity.class);
+                        intent.putExtra("title", results.get(i).getTitle());
+                        CameraActivity.activity.startActivity(intent);
+                        break;
+//                        Toast.makeText(context, results.get(i).getTitle(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     @Override
@@ -83,7 +111,7 @@ public class OverlayView extends View {
         float offsetX = (this.getWidth() - Config.INPUT_SIZE * sizeMultiplier) / 2;
         float offsetY = (overlayViewHeight - Config.INPUT_SIZE * sizeMultiplier) / 2 + resultsViewHeight;
 
-        float left = Math.max(padding,sizeMultiplier * rect.getLeft() + offsetX);
+        float left = Math.max(padding, sizeMultiplier * rect.getLeft() + offsetX);
         float top = Math.max(offsetY + padding, sizeMultiplier * rect.getTop() + offsetY);
 
         float right = Math.min(rect.getRight() * sizeMultiplier, this.getWidth() - padding);
