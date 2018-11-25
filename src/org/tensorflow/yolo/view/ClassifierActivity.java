@@ -104,6 +104,7 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
 
         runInBackground(() -> {
             final long startTime = SystemClock.uptimeMillis();
+            Log.d(LOGGING_TAG, "bitmap: " + croppedBitmap.toString());
             final List<Recognition> results = recognizer.recognizeImage(croppedBitmap);
             lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
             overlayView.setResults(results);

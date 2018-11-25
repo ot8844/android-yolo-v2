@@ -8,72 +8,97 @@
     tools:layout_editor_absoluteY="81dp"
     tools:layout_editor_absoluteX="0dp">
 
-    <LinearLayout
+
+    <TextView
+        android:id="@+id/title"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:text="개인정보 입력"
+        android:textSize="25dp" />
 
-        <LinearLayout
-            android:layout_weight="1"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true">
+    <TextView
+        android:id="@+id/label_name"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/title"
+        android:layout_alignParentStart="true"
+        android:layout_gravity="left"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:text="이름"
+        android:textSize="20dp" />
+    <EditText
+        android:id="@+id/name_input"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:layout_toRightOf="@+id/label_name"
+        android:layout_alignBottom="@+id/label_name"
+        android:hint="NAME"
+        android:layout_gravity="left"
+        android:gravity="center"
+        android:layout_marginBottom="20dp"/>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="20dp"
-                android:text="채팅방 입장 또는 새로 만들기"
-                android:layout_marginBottom="20dp"
-                android:gravity="center"/>
-            <EditText
-                android:id="@+id/user_chat"
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:hint="CHAT NAME"
-                android:layout_gravity="left"
-                android:gravity="center"
-                android:layout_marginBottom="20dp"/>
+    <TextView
+        android:id="@+id/label_career"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/label_name"
+        android:layout_alignParentStart="true"
+        android:layout_gravity="left"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:text="직업"
+        android:textSize="20dp" />
+    <EditText
+        android:id="@+id/career_input"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:layout_below="@+id/name_input"
+        android:layout_toRightOf="@+id/label_career"
+        android:hint="CAREER"
+        android:layout_gravity="left"
+        android:gravity="center"
+        android:layout_marginBottom="20dp"/>
 
-            <EditText
-                android:id="@+id/user_edit"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:hint="USER NAME"
-                android:layout_gravity="right"
-                android:gravity="center"
-                android:layout_marginBottom="20dp"/>
+    <TextView
+        android:id="@+id/label_email"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/label_career"
+        android:layout_alignParentStart="true"
+        android:layout_gravity="left"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:text="이메일"
+        android:textSize="20dp" />
+    <EditText
+        android:id="@+id/email_input"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:layout_below="@+id/career_input"
+        android:layout_toRightOf="@+id/label_career"
+        android:hint="EMAIL"
+        android:layout_gravity="left"
+        android:gravity="center"
+        android:layout_marginBottom="25dp"/>
 
-            <Button
-                android:id="@+id/user_next"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:text="GO"/>
+    <Button
+        android:id="@+id/user_next"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:layout_centerInParent="true"
+        android:text="ENTER"
+        android:textSize="20dp" />
 
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_weight="2"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="20dp"
-                android:text="현재 개설된 채팅방"
-                android:layout_marginBottom="20dp"
-                android:gravity="center"/>
-            <ListView
-                android:id="@+id/chat_list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-            </ListView>
-        </LinearLayout>
-    </LinearLayout>
 </RelativeLayout>
