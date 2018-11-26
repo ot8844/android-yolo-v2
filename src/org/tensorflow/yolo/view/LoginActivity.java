@@ -79,6 +79,7 @@ public class LoginActivity extends Activity {
                 } else {
                     startActivity(new Intent(LoginActivity.this, EditUserInfoActivity.class));
                 }
+                finish();
             } catch (ApiException e) {
 
             }
@@ -102,6 +103,7 @@ public class LoginActivity extends Activity {
                             } else {
                                 startActivity(new Intent(LoginActivity.this, EditUserInfoActivity.class));
                             }
+                            finish();
                         } else {
                             // 로그인 실패
                             Toast.makeText(LoginActivity.this, R.string.failed_login, Toast.LENGTH_SHORT).show();

@@ -14,6 +14,8 @@ import org.tensorflow.yolo.model.BoxPosition;
 import org.tensorflow.yolo.model.Recognition;
 import org.tensorflow.yolo.util.ClassAttrProvider;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -65,6 +67,20 @@ public class OverlayView extends View {
     public void setResults(final List<Recognition> results) {
         this.results = results;
         postInvalidate();
+    }
+
+    public HashMap<String, RectF> getTitleBoxMap(final List<Recognition> results) {
+        this.results = results;
+        HashMap<String, RectF> titleBoxMap = new LinkedHashMap<>();
+        if (results != null) {
+            for (int i = 0; i < results.size(); i++) {
+                RectF box = reCalcSize(results.get(i).getLocation());
+                String title = results.get(i).getTitle() + ":"
+                        + String.format("%.2f", results.get(i).getConfidence());
+                titleBoxMap.put(title, box);
+            }
+        }
+        return titleBoxMap;
     }
 
     /**
