@@ -5,6 +5,7 @@ public class UserInfoDTO {
     private String job;
     private String email;
 
+    public UserInfoDTO() {}
     public UserInfoDTO(String name, String job, String email) {
         this.name = name;
         this.job = job;

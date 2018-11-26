@@ -38,7 +38,8 @@
             android:layout_marginBottom="20dp"
             android:gravity="center"
             android:hint="NAME"
-            android:inputType="textPersonName" />
+            android:inputType="textPersonName"
+            android:textColor="@color/edit_view_colors"/>
     </LinearLayout>
 
     <LinearLayout
@@ -54,7 +55,8 @@
             android:layout_marginBottom="20dp"
             android:gravity="center"
             android:text="직업"
-            android:textSize="20dp" />
+            android:textSize="20dp"
+            />
 
         <EditText
             android:id="@+id/job_input"
@@ -64,7 +66,8 @@
             android:layout_marginBottom="20dp"
             android:gravity="center"
             android:hint="CAREER"
-            android:inputType="textPersonName" />
+            android:inputType="textPersonName"
+            android:textColor="@color/edit_view_colors"/>
     </LinearLayout>
 
     <LinearLayout
@@ -87,7 +90,8 @@
             android:layout_marginBottom="25dp"
             android:gravity="center"
             android:hint="EMAIL"
-            android:inputType="textPersonName" />
+            android:inputType="textPersonName"
+            android:textColor="@color/edit_view_colors" />
     </LinearLayout>
 
 

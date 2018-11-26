@@ -50,7 +50,7 @@ import static org.tensorflow.yolo.Config.LOGGING_TAG;
  * Modified by Zoltan Szabo
  */
 public class CameraConnectionFragment extends Fragment {
-    private static final Size DESIRED_PREVIEW_SIZE = new Size(640, 480);
+    private static final Size DESIRED_PREVIEW_SIZE = new Size(1920,1080);
     /**
      * The camera preview size will be chosen to be the smallest frame by pixel size capable of
      * containing a DESIRED_SIZE x DESIRED_SIZE square.
@@ -217,6 +217,7 @@ public class CameraConnectionFragment extends Fragment {
         // Collect the supported resolutions that are at least as big as the preview Surface
         final List<Size> bigEnough = new ArrayList();
         for (final Size option : choices) {
+            Log.d("jack_check", "w: " + option.getWidth() + "h: " + option.getHeight());
             if (option.equals(DESIRED_PREVIEW_SIZE)) {
                 return DESIRED_PREVIEW_SIZE;
             }

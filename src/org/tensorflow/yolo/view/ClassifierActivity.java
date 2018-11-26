@@ -10,6 +10,7 @@ import android.graphics.Typeface;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 import android.util.Size;
@@ -18,10 +19,19 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import org.tensorflow.yolo.R;
 import org.tensorflow.yolo.TensorFlowImageRecognizer;
 import org.tensorflow.yolo.model.BoxPosition;
 import org.tensorflow.yolo.model.Recognition;
+import org.tensorflow.yolo.model.UserInfoDTO;
+import org.tensorflow.yolo.util.FirebaseHelper;
 import org.tensorflow.yolo.util.ImageUtils;
 import org.tensorflow.yolo.view.components.BorderedText;
 
@@ -56,6 +66,13 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
     private OverlayView overlayView;
     private BorderedText borderedText;
     private long lastProcessingTimeMs;
+    private FirebaseHelper fbHelper;
+
+    @Override
+    protected void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        fbHelper = new FirebaseHelper();
+    }
 
     @Override
     public void onPreviewSizeChosen(final Size size, final int rotation) {
@@ -126,24 +143,29 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
                     relativeLayout.removeView(v);
                 }
                 recognizedViews.clear();
-                Recognition r1 = new Recognition(1, "BBakBBak", 1.0f, new BoxPosition(new Random().nextInt(300), new Random().nextInt(300), 2, 2));
-                Recognition r2 = new Recognition(1, "WassupMan", 1.0f, new BoxPosition(new Random().nextInt(300), new Random().nextInt(300), 2, 2));
-                results.add(r1);
-                results.add(r2);
+//                Recognition r1 = new Recognition(1, "BBakBBak", 1.0f, new BoxPosition(1,1, 2, 2));
+//                Recognition r2 = new Recognition(1, "WassupMan", 1.0f, new BoxPosition(400, 400, 2, 2));
+//                results.add(r1);
+//                results.add(r2);
                 HashMap<String, RectF> titleMap = overlayView.getTitleBoxMap(results);
                 results.clear();
-                Log.e("aaa", "recognized : " + results.size());
                 for (Map.Entry<String, RectF> entry : titleMap.entrySet()) {
                     String title = entry.getKey();
                     RectF box = entry.getValue();
+                    UserInfoDTO user = fbHelper.getUserBySticker(title);
+                    String user_id = fbHelper.getUserKey(title);
 
                     Button button = new Button(ClassifierActivity.this);
                     button.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             computing = false;
+                            if (user == null) return;
                             Intent intent = new Intent(ClassifierActivity.this, EditUserInfoActivity.class);
                             intent.putExtra("view_only", true);
+                            intent.putExtra("name", user.getName());
+                            intent.putExtra("job", user.getJob());
+                            intent.putExtra("email", user.getEmail());
                             startActivity(intent);
                         }
                     });
@@ -153,7 +175,11 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
                     rel_btn.topMargin = (int) box.top;
                     button.setLayoutParams(rel_btn);
                     button.setBackgroundColor(getResources().getColor(R.color.control_background));
-                    button.setText(title);
+                    if (user != null) {
+                        button.setText(user.getName() + ":" + user.getJob());
+                    }else{
+                        button.setText("유저 정보 없음");
+                    }
                     relativeLayout.addView(button);
                     recognizedViews.add(button);
                 }
@@ -187,12 +213,10 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
                 lines.add(line);
             }
         }
-
         lines.add("Frame: " + previewWidth + "x" + previewHeight);
         lines.add("View: " + canvas.getWidth() + "x" + canvas.getHeight());
         lines.add("Rotation: " + sensorOrientation);
         lines.add("Inference time: " + lastProcessingTimeMs + "ms");
-
         borderedText.drawLines(canvas, 10, 10, lines);
     }
 }

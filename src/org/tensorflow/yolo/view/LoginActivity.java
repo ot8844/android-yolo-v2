@@ -25,6 +25,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 import org.tensorflow.yolo.R;
+import org.tensorflow.yolo.util.FirebaseHelper;
 
 public class LoginActivity extends Activity {
     private static final int RC_SIGN_IN = 900;
@@ -75,9 +76,13 @@ public class LoginActivity extends Activity {
                 firebaseAuthWithGoogle(account);
                 SharedPreferences prefs = getSharedPreferences(EditUserInfoActivity.PREFS, Context.MODE_PRIVATE);
                 if (prefs.getBoolean(EditUserInfoActivity.SAVED, false)) {
-                    startActivity(new Intent(LoginActivity.this, ClassifierActivity.class));
+                    Intent intent = new Intent(LoginActivity.this, ClassifierActivity.class);
+                    intent.putExtra("user_id", account.getId());
+                    startActivity(intent);
                 } else {
-                    startActivity(new Intent(LoginActivity.this, EditUserInfoActivity.class));
+                    Intent intent = new Intent(LoginActivity.this, EditUserInfoActivity.class);
+                    intent.putExtra("user_id", account.getId());
+                    startActivity(intent);
                 }
                 finish();
             } catch (ApiException e) {
@@ -99,9 +104,13 @@ public class LoginActivity extends Activity {
                             Toast.makeText(LoginActivity.this, R.string.success_login, Toast.LENGTH_SHORT).show();
                             SharedPreferences prefs = getSharedPreferences(EditUserInfoActivity.PREFS, Context.MODE_PRIVATE);
                             if (prefs.getBoolean(EditUserInfoActivity.SAVED, false)) {
-                                startActivity(new Intent(LoginActivity.this, ClassifierActivity.class));
+                                Intent intent = new Intent(LoginActivity.this, ClassifierActivity.class);
+                                intent.putExtra("user_id", acct.getId());
+                                startActivity(intent);
                             } else {
-                                startActivity(new Intent(LoginActivity.this, EditUserInfoActivity.class));
+                                Intent intent = new Intent(LoginActivity.this, EditUserInfoActivity.class);
+                                intent.putExtra("user_id", acct.getId());
+                                startActivity(intent);
                             }
                             finish();
                         } else {

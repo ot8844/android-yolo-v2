@@ -38,7 +38,7 @@ public class OverlayView extends View {
         paint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 15, getResources().getDisplayMetrics()));
         resultsViewHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                112, getResources().getDisplayMetrics());
+                100, getResources().getDisplayMetrics());
         colors = ClassAttrProvider.newInstance(context.getAssets()).getColors();
     }
 
@@ -75,8 +75,7 @@ public class OverlayView extends View {
         if (results != null) {
             for (int i = 0; i < results.size(); i++) {
                 RectF box = reCalcSize(results.get(i).getLocation());
-                String title = results.get(i).getTitle() + ":"
-                        + String.format("%.2f", results.get(i).getConfidence());
+                String title = results.get(i).getTitle();
                 titleBoxMap.put(title, box);
             }
         }
