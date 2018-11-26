@@ -17,6 +17,7 @@ import org.tensorflow.yolo.R;
 import org.tensorflow.yolo.TensorFlowImageRecognizer;
 import org.tensorflow.yolo.model.BoxPosition;
 import org.tensorflow.yolo.model.Recognition;
+import org.tensorflow.yolo.model.Sticker;
 import org.tensorflow.yolo.util.ImageUtils;
 import org.tensorflow.yolo.view.components.BorderedText;
 
@@ -48,6 +49,10 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
     private BorderedText borderedText;
     private long lastProcessingTimeMs;
 
+    private static ArrayList<Sticker> target_stickers = new ArrayList<Sticker>();
+    static {
+        target_stickers.add(new Sticker(1, "STICKER_JACK", 255 ,0, 0));
+    }
     @Override
     public void onPreviewSizeChosen(final Size size, final int rotation) {
         final float textSizePx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
@@ -79,55 +84,12 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
         addCallback((final Canvas canvas) -> renderAdditionalInformation(canvas));
     }
 
-    public static List<Recognition> find(Bitmap origin) {
-        String tag = "jack";
-        int width = origin.getWidth();
-        int height = origin.getHeight();
-        int cnt = 0;
-        int cnt_2 = 0;
-        int x = 0;
-        int y = 0;
-
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                int col = origin.getPixel(i, j);
-                int alpha = col & 0xFF000000;
-                int red = (col & 0x00FF0000) >> 16;
-                int green = (col & 0x0000FF00) >> 8;
-                int blue = (col & 0x000000FF);
-
-                int dist = (int) ((red - 255)*(red - 255) + (blue-0)*(blue-0) + (green-0)*(green-0));
-                if (dist < 1000){
-//                    Log.d(tag, "R: " + red + " G: " + green + " B: " + blue);
-//                    Log.d(tag, "dist : " + dist);
-//                    Log.d(tag, "X: " + i + "Y: " + j);
-                    cnt +=1;
-                    x += i;
-                    y += j;
-                }
-                if (red > 210 && blue < 40 && green < 40) {
-                    cnt_2 +=1;
-                }
-            }
-        }
-        Log.d(tag, "cnt: " + cnt);
-        Log.d(tag, "cnt2: " + cnt_2);
-        ArrayList<Recognition> res = new ArrayList<Recognition>();
-        if (cnt > 0) {
-            x = x / cnt;
-            y = y / cnt;
-            res.add(new Recognition(1, "red", 1.0f, new BoxPosition(x - 1, y - 1, 2, 2)));
-        }
-        return res;
-    }
-
     @Override
     public void onImageAvailable(final ImageReader reader) {
         Image image = null;
 
         try {
             image = reader.acquireLatestImage();
-
             if (image == null) {
                 return;
             }
@@ -154,7 +116,7 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
             Log.d(tag, "width: " + rgbFrameBitmap.getHeight() + " height: " + rgbFrameBitmap.getWidth());
             Log.d(tag, "pixel: " + rgbFrameBitmap.getPixel(1, 1));
             //find(rgbFrameBitmap);
-            final List<Recognition> results = find(rgbFrameBitmap);//recognizer.recognizeImage(croppedBitmap);
+            final List<Recognition> results = recognizer.find(rgbFrameBitmap, target_stickers);//recognizer.recognizeImage(croppedBitmap);
             lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
             overlayView.setResults(results);
             speak(results);

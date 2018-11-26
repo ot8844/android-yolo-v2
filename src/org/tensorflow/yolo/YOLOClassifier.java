@@ -1,5 +1,8 @@
 package org.tensorflow.yolo;
 
+import android.graphics.Bitmap;
+import android.util.Log;
+
 import org.apache.commons.math3.analysis.function.Sigmoid;
 import org.tensorflow.Operation;
 import org.tensorflow.yolo.model.BoundingBox;
@@ -163,4 +166,5 @@ public class YOLOClassifier {
             return Float.compare(recognition2.getConfidence(), recognition1.getConfidence());
         }
     }
+
 }
