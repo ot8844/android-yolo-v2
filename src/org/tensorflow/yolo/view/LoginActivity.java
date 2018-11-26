@@ -1,9 +1,12 @@
 package org.tensorflow.yolo.view;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -14,6 +17,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -30,6 +34,7 @@ public class LoginActivity extends Activity {
     private FirebaseAuth firebaseAuth;
     // 구글  로그인 버튼
     private SignInButton buttonGoogle;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,7 +42,7 @@ public class LoginActivity extends Activity {
 
         // 파이어베이스 인증 객체 선언
         firebaseAuth = FirebaseAuth.getInstance();
-        buttonGoogle = (SignInButton)findViewById(R.id.btn_googleSignIn);
+        buttonGoogle = (SignInButton) findViewById(R.id.btn_googleSignIn);
 
         // Google 로그인을 앱에 통합
         // GoogleSignInOptions 개체를 구성할 때 requestIdToken을 호출
@@ -68,9 +73,16 @@ public class LoginActivity extends Activity {
                 // 구글 로그인 성공
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account);
+                SharedPreferences prefs = getSharedPreferences(EditUserInfoActivity.PREFS, Context.MODE_PRIVATE);
+                if (prefs.getBoolean(EditUserInfoActivity.SAVED, false)) {
+                    startActivity(new Intent(LoginActivity.this, ClassifierActivity.class));
+                } else {
+                    startActivity(new Intent(LoginActivity.this, EditUserInfoActivity.class));
+                }
             } catch (ApiException e) {
 
             }
+
         }
     }
 
@@ -84,8 +96,12 @@ public class LoginActivity extends Activity {
                         if (task.isSuccessful()) {
                             // 로그인 성공
                             Toast.makeText(LoginActivity.this, R.string.success_login, Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(LoginActivity.this, EditUserInfoActivity.class);
-                            startActivity(intent);
+                            SharedPreferences prefs = getSharedPreferences(EditUserInfoActivity.PREFS, Context.MODE_PRIVATE);
+                            if (prefs.getBoolean(EditUserInfoActivity.SAVED, false)) {
+                                startActivity(new Intent(LoginActivity.this, ClassifierActivity.class));
+                            } else {
+                                startActivity(new Intent(LoginActivity.this, EditUserInfoActivity.class));
+                            }
                         } else {
                             // 로그인 실패
                             Toast.makeText(LoginActivity.this, R.string.failed_login, Toast.LENGTH_SHORT).show();
