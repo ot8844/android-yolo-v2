@@ -111,7 +111,9 @@ public class EditUserInfoActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        if (getIntent() != null && getIntent().getBooleanExtra("view_only", false)) {
+        if (getIntent() != null
+                && getIntent().getBooleanExtra("view_only", false)
+                && !getIntent().getBooleanExtra("is_me", false)) {
             startActivity(new Intent(this, ClassifierActivity.class));
             finish();
         } else {
