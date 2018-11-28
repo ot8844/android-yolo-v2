@@ -4,6 +4,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <Button
+        android:id="@+id/user_edit"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:layout_marginRight="10dp"
+        android:layout_gravity="right"
+        android:text="EDIT"
+        android:textSize="20dp" />
+
     <org.tensorflow.yolo.view.AutoFitTextureView
         android:id="@+id/texture"
         android:layout_width="wrap_content"
@@ -15,5 +27,4 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true" />
-
 </RelativeLayout>

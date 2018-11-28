@@ -1,6 +1,8 @@
 package org.tensorflow.yolo.view;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -67,11 +69,34 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
     private BorderedText borderedText;
     private long lastProcessingTimeMs;
     private FirebaseHelper fbHelper;
+    private Button edit;
+
+    void startEdit(boolean view_only, UserInfoDTO user){
+        computing = false;
+        if (user == null) return;
+        Intent intent = new Intent(ClassifierActivity.this, EditUserInfoActivity.class);
+        intent.putExtra("view_only", view_only);
+        intent.putExtra("from_classifier", true);
+        intent.putExtra("name", user.getName());
+        intent.putExtra("job", user.getJob());
+        intent.putExtra("email", user.getEmail());
+        startActivity(intent);
+    }
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         fbHelper = new FirebaseHelper();
+        edit = new Button(ClassifierActivity.this);
+
+        edit.setOnClickListener(v -> {
+            SharedPreferences prefs = getSharedPreferences(EditUserInfoActivity.PREFS, Context.MODE_PRIVATE);
+            String id = prefs.getString("id", null);
+            if (id == null) return;
+
+            UserInfoDTO user = fbHelper.getUser(id);
+            startEdit(false, user);
+        });
     }
 
     @Override
@@ -153,33 +178,25 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
                     String title = entry.getKey();
                     RectF box = entry.getValue();
                     UserInfoDTO user = fbHelper.getUserBySticker(title);
-                    String user_id = fbHelper.getUserKey(title);
 
                     Button button = new Button(ClassifierActivity.this);
                     button.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            computing = false;
-                            if (user == null) return;
-                            Intent intent = new Intent(ClassifierActivity.this, EditUserInfoActivity.class);
-                            intent.putExtra("view_only", true);
-                            intent.putExtra("name", user.getName());
-                            intent.putExtra("job", user.getJob());
-                            intent.putExtra("email", user.getEmail());
-                            startActivity(intent);
+                            startEdit(true, user);
                         }
                     });
                     RelativeLayout.LayoutParams rel_btn = new RelativeLayout.LayoutParams(
                             RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
                     rel_btn.leftMargin = (int) box.left;
                     rel_btn.topMargin = (int) box.top;
+                    String btn_text = "유저 정보 없음";
+                    if (user != null) {
+                        btn_text = user.getName() + ":" + user.getJob();
+                    }
+                    button.setText(btn_text);
                     button.setLayoutParams(rel_btn);
                     button.setBackgroundColor(getResources().getColor(R.color.control_background));
-                    if (user != null) {
-                        button.setText(user.getName() + ":" + user.getJob());
-                    }else{
-                        button.setText("유저 정보 없음");
-                    }
                     relativeLayout.addView(button);
                     recognizedViews.add(button);
                 }

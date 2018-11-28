@@ -42,20 +42,22 @@ public class EditUserInfoActivity extends Activity {
         job = (EditText) findViewById(R.id.job_input);
         email = (EditText) findViewById(R.id.email_input);
         next = (Button) findViewById(R.id.user_next);
+
         fbHelper = new FirebaseHelper();
+
+        if (getIntent().getBooleanExtra("from_classifier", false)) {
+            name.setText(getIntent().getStringExtra("name"));
+            job.setText(getIntent().getStringExtra("job"));
+            email.setText(getIntent().getStringExtra("email"));
+        }
 
         if (getIntent() != null && getIntent().getBooleanExtra("view_only", false)) {
             title.setText("개인 정보 조회");
 
-//            SharedPreferences prefs = getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+//            SharedPreferences next = (Button) findViewById(R.id.user_next);prefs = getSharedPreferences(PREFS, Context.MODE_PRIVATE);
 //            name.setText(prefs.getString(USER_NAME, "USER_NAME"));
 //            job.setText(prefs.getString(USER_JOB, "USER_JOB"));
 //            email.setText(prefs.getString(USER_EMAIL, "USER_EMAIL"));
-
-            name.setText(getIntent().getStringExtra("name"));
-            job.setText(getIntent().getStringExtra("job"));
-            email.setText(getIntent().getStringExtra("email"));
-
             name.setEnabled(false);
             job.setEnabled(false);
             email.setEnabled(false);
@@ -91,7 +93,7 @@ public class EditUserInfoActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        if (getIntent() != null && getIntent().getBooleanExtra("view_only", false)) {
+        if (getIntent() != null && getIntent().getBooleanExtra("from_classifier", false)) {
             startActivity(new Intent(this, ClassifierActivity.class));
             finish();
         } else {
