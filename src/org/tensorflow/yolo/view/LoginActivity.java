@@ -57,8 +57,10 @@ public class LoginActivity extends Activity {
         buttonGoogle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent signInIntent = googleSignInClient.getSignInIntent();
-                startActivityForResult(signInIntent, RC_SIGN_IN);
+//                Intent signInIntent = googleSignInClient.getSignInIntent();
+//                startActivityForResult(signInIntent, RC_SIGN_IN);
+                Intent intent = new Intent(LoginActivity.this, EditUserInfoActivity.class);
+                startActivity(IntentWithUserId(intent, "123124123"));
             }
         });
     }
@@ -72,17 +74,15 @@ public class LoginActivity extends Activity {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 // 구글 로그인 성공
-                GoogleSignInAccount account = task.getResult(ApiException.class);
-                firebaseAuthWithGoogle(account);
+                GoogleSignInAccount acct = task.getResult(ApiException.class);
+                firebaseAuthWithGoogle(acct);
                 SharedPreferences prefs = getSharedPreferences(EditUserInfoActivity.PREFS, Context.MODE_PRIVATE);
                 if (prefs.getBoolean(EditUserInfoActivity.SAVED, false)) {
-                    Intent intent = new Intent(LoginActivity.this, ClassifierActivity.class);
-                    intent.putExtra("user_id", account.getId());
+                    Intent intent = new Intent(LoginActivity.this, StatusActivity.class);
                     startActivity(intent);
                 } else {
                     Intent intent = new Intent(LoginActivity.this, EditUserInfoActivity.class);
-                    intent.putExtra("user_id", account.getId());
-                    startActivity(intent);
+                    startActivity(IntentWithUserId(intent, acct.getId()));
                 }
                 finish();
             } catch (ApiException e) {
@@ -104,13 +104,11 @@ public class LoginActivity extends Activity {
                             Toast.makeText(LoginActivity.this, R.string.success_login, Toast.LENGTH_SHORT).show();
                             SharedPreferences prefs = getSharedPreferences(EditUserInfoActivity.PREFS, Context.MODE_PRIVATE);
                             if (prefs.getBoolean(EditUserInfoActivity.SAVED, false)) {
-                                Intent intent = new Intent(LoginActivity.this, ClassifierActivity.class);
-                                intent.putExtra("user_id", acct.getId());
+                                Intent intent = new Intent(LoginActivity.this, StatusActivity.class);
                                 startActivity(intent);
                             } else {
                                 Intent intent = new Intent(LoginActivity.this, EditUserInfoActivity.class);
-                                intent.putExtra("user_id", acct.getId());
-                                startActivity(intent);
+                                startActivity(IntentWithUserId(intent, acct.getId()));
                             }
                             finish();
                         } else {
@@ -119,5 +117,10 @@ public class LoginActivity extends Activity {
                         }
                     }
                 });
+    }
+
+    private Intent IntentWithUserId(Intent intent, String userId) {
+        FirebaseHelper.MY_USER_ID = userId;
+        return intent.putExtra("user_id", userId);
     }
 }

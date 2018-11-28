@@ -24,7 +24,7 @@ import java.util.Map;
 public class FirebaseHelper {
     // This value is 2 ^ 18 - 1, and is used to clamp the RGB values before their ranges
     // are normalized to eight bits.
-
+    public static String MY_USER_ID;
 
     private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference databaseReference = firebaseDatabase.getReference();

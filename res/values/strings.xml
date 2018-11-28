@@ -5,4 +5,6 @@
     <string name="camera_error">This device doesn\'t support Camera2 API.</string>
     <string name="success_login">google login success</string>
     <string name="failed_login">google login failed</string>
+    <string name="input_user_info">개인정보 입력</string>
+    <string name="view_user_info">개인정보 조회</string>
 </resources>

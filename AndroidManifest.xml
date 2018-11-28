@@ -25,9 +25,8 @@
         <activity
             android:name=".view.ClassifierActivity"
             android:label="@string/activity_name_classification"
-            android:screenOrientation="portrait">
-        </activity>
-        <activity android:name=".view.EditUserInfoActivity"/>
+            android:screenOrientation="portrait"></activity>
+        <activity android:name=".view.EditUserInfoActivity" />
         <activity android:name=".view.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -35,6 +34,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".view.StatusActivity"></activity>
     </application>
 
 </manifest>
