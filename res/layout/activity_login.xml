@@ -4,19 +4,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/light_gray"
     tools:context=".view.LoginActivity">
 
     <TextView
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="220dp"
         android:layout_height="wrap_content"
-        android:textSize="50dp"
-        android:text="KeonilKim"/>
+        android:textSize="42dp"
+        android:textColor="@color/purple_4"
+        tools:text="KeonilKim"
+        android:text="@string/login_title"/>
 
     <com.google.android.gms.common.SignInButton
         android:id="@+id/btn_googleSignIn"
-        android:layout_gravity="center"
+        android:layout_below="@+id/title"
+        android:layout_marginTop="20dp"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true">

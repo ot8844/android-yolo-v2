@@ -6,8 +6,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -41,6 +43,9 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        TextView titleTextView = (TextView) findViewById(R.id.title);
+        titleTextView.setText(Html.fromHtml(getString(R.string.login_title)));
+
         // 파이어베이스 인증 객체 선언
         firebaseAuth = FirebaseAuth.getInstance();
         buttonGoogle = (SignInButton) findViewById(R.id.btn_googleSignIn);
@@ -57,6 +62,7 @@ public class LoginActivity extends Activity {
         buttonGoogle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //FIXME : 이거 주석 바꿔야함 넥서스 테스트 때문에 이렇게 했음.
 //                Intent signInIntent = googleSignInClient.getSignInIntent();
 //                startActivityForResult(signInIntent, RC_SIGN_IN);
                 Intent intent = new Intent(LoginActivity.this, EditUserInfoActivity.class);
