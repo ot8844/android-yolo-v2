@@ -2,14 +2,36 @@ package org.tensorflow.yolo.model;
 
 public class UserInfoDTO {
     private String name;
-    private String job;
     private String email;
+    private String major;
+    private String job;
+    private String history;
 
-    public UserInfoDTO() {}
-    public UserInfoDTO(String name, String job, String email) {
+    public UserInfoDTO(String name, String email, String major, String job, String history) {
         this.name = name;
-        this.job = job;
         this.email = email;
+        this.major = major;
+        this.job = job;
+        this.history = history;
+    }
+
+    public UserInfoDTO() {
+    }
+
+    public String getMajor() {
+        return major;
+    }
+
+    public void setMajor(String major) {
+        this.major = major;
+    }
+
+    public String getHistory() {
+        return history;
+    }
+
+    public void setHistory(String history) {
+        this.history = history;
     }
 
     public String getName() {

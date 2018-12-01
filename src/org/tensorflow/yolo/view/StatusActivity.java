@@ -30,7 +30,6 @@ public class StatusActivity extends Activity {
         editProfileBtn.setOnClickListener(v -> {
             Intent intent = new Intent(this, EditUserInfoActivity.class);
             intent.putExtra("user_id", FirebaseHelper.MY_USER_ID);
-            intent.putExtra("view_only", true);
             intent.putExtra("is_me", true);
             startActivity(intent);
         });

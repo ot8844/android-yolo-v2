@@ -5,21 +5,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
 import org.tensorflow.yolo.R;
 import org.tensorflow.yolo.model.UserInfoDTO;
 import org.tensorflow.yolo.util.FirebaseHelper;
-
-import java.util.Random;
 
 public class EditUserInfoActivity extends Activity {
     public static final String PREFS = "PREFS";
@@ -29,72 +25,260 @@ public class EditUserInfoActivity extends Activity {
     public static final String USER_JOB = "USER_JOB";
     public static final String USER_EMAIL = "USER_EMAIL";
 
-    private TextView title;
-    private EditText name, job, email;
-    private Button next, save;
+    public static boolean fromDiscover = false;
+
+    private TextView nameText;
+    private EditText nameEdit;
+    private View nameView;
+
+    private TextView emailText;
+    private EditText emailEdit;
+    private View emailView;
+
+    private TextView majorText;
+    private EditText majorEdit;
+    private View majorView;
+
+    private TextView jobText;
+    private EditText jobEdit;
+    private View jobView;
+
+    private TextView historyText;
+    private EditText historyEdit;
+    private View historyView;
+
+    private Button cancel, save;
+    private View divider;
     private FirebaseHelper fbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_userinfo);
-        title = (TextView) findViewById(R.id.title);
-        name = (EditText) findViewById(R.id.name_input);
-        job = (EditText) findViewById(R.id.job_input);
-        email = (EditText) findViewById(R.id.email_input);
-        next = (Button) findViewById(R.id.user_next);
-        save = (Button) findViewById(R.id.user_save);
+        initViews();
         fbHelper = new FirebaseHelper();
 
-        if (getIntent() != null && getIntent().getBooleanExtra("view_only", false)) {
-            title.setText(R.string.view_user_info);
-
-            name.setText(getIntent().getStringExtra("name"));
-            job.setText(getIntent().getStringExtra("job"));
-            email.setText(getIntent().getStringExtra("email"));
+        if (getIntent() != null) {
+            nameEdit.setText(getIntent().getStringExtra("name"));
+            emailEdit.setText(getIntent().getStringExtra("email"));
+            majorEdit.setText(getIntent().getStringExtra("major"));
+            jobEdit.setText(getIntent().getStringExtra("job"));
+            historyEdit.setText(getIntent().getStringExtra("history"));
 
             if (getIntent().getBooleanExtra("is_me", false)) {
                 UserInfoDTO dto = fbHelper.getUser(getIntent().getStringExtra("user_id"));
                 if (dto != null) {
-                    name.setText(dto.getName());
-                    job.setText(dto.getJob());
-                    email.setText(dto.getEmail());
+                    nameEdit.setText(dto.getName());
+                    emailEdit.setText(dto.getEmail());
+                    majorEdit.setText(dto.getMajor());
+                    jobEdit.setText(dto.getJob());
+                    historyEdit.setText(dto.getHistory());
                 }
 
-                save.setVisibility(View.VISIBLE);
+                save.setText("Save");
                 save.setOnClickListener(v -> {
-                    save();
-                    Toast.makeText(this, "정보가 갱신되었습니다.", Toast.LENGTH_SHORT).show();
+                    if (save()) {
+                        Toast.makeText(this, "Your profile is updated.", Toast.LENGTH_SHORT).show();
+                    }
                 });
-                next.setVisibility(View.INVISIBLE);
             } else {
-                save.setVisibility(View.INVISIBLE);
-                next.setVisibility(View.INVISIBLE);
-                name.setEnabled(false);
-                job.setEnabled(false);
-                email.setEnabled(false);
+                if (fromDiscover) {
+                    save.setText("Add");
+                    save.setOnClickListener(v -> {
+                        addToMyList();
+                        Toast.makeText(this, "User is added to your list.", Toast.LENGTH_SHORT).show();
+                    });
+                } else {
+                    save.setText("Delete");
+                    save.setOnClickListener(v -> {
+                        deleteFromMyList();
+                        Toast.makeText(this, "User is deleted from your list.", Toast.LENGTH_SHORT).show();
+                    });
+                }
+
+                nameEdit.setEnabled(false);
+                emailEdit.setEnabled(false);
+                majorEdit.setEnabled(false);
+                jobEdit.setEnabled(false);
+                historyEdit.setEnabled(false);
             }
             return;
+        } else {
+            save.setOnClickListener(v -> {
+                if (save()) {
+                    startActivity(new Intent(this, StatusActivity.class));
+                    finish();
+                }
+            });
         }
 
-        next.setOnClickListener(v -> {
-            save();
-            Intent intent = new Intent(this, StatusActivity.class);
-            startActivity(intent);
-            finish();
-        });
+        cancel.setOnClickListener(v -> onBackPressed());
     }
 
-    private void save() {
-        if (name.getText().toString().equals("")
-                || job.getText().toString().equals("")
-                || email.getText().toString().equals(""))
-            return;
+    private void addToMyList() {
+        // TODO : Discover에서 온 경우에 리스트에 저장해야함.
+    }
+
+    private void deleteFromMyList() {
+        // TODO : Discover에서 온 경우에 리스트에서 삭제해야함.
+    }
+
+    private void initViews() {
+        nameText = (TextView) findViewById(R.id.name_text);
+        nameEdit = (EditText) findViewById(R.id.name_input);
+        nameView = findViewById(R.id.name_line);
+
+        emailText = (TextView) findViewById(R.id.email_text);
+        emailEdit = (EditText) findViewById(R.id.email_input);
+        emailView = findViewById(R.id.email_line);
+
+        majorText = (TextView) findViewById(R.id.major_text);
+        majorEdit = (EditText) findViewById(R.id.major_input);
+        majorView = findViewById(R.id.major_line);
+
+        jobText = (TextView) findViewById(R.id.job_text);
+        jobEdit = (EditText) findViewById(R.id.job_input);
+        jobView = findViewById(R.id.job_line);
+
+        historyText = (TextView) findViewById(R.id.history_text);
+        historyEdit = (EditText) findViewById(R.id.history_input);
+        historyView = findViewById(R.id.history_line);
+
+        nameEdit.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (nameEdit.getText().length() != 0) {
+                    nameText.setTextColor(getColor(R.color.purple_4));
+                    nameView.setBackgroundColor(getColor(R.color.purple_4));
+                } else {
+                    nameText.setTextColor(getColor(R.color.normal_gray));
+                    nameView.setBackgroundColor(getColor(R.color.normal_gray));
+                }
+            }
+        });
+
+        emailEdit.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (emailEdit.getText().length() != 0) {
+                    emailText.setTextColor(getColor(R.color.purple_4));
+                    emailView.setBackgroundColor(getColor(R.color.purple_4));
+                } else {
+                    emailText.setTextColor(getColor(R.color.normal_gray));
+                    emailView.setBackgroundColor(getColor(R.color.normal_gray));
+                }
+            }
+        });
+
+        majorEdit.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (majorEdit.getText().length() != 0) {
+                    majorText.setTextColor(getColor(R.color.purple_4));
+                    majorView.setBackgroundColor(getColor(R.color.purple_4));
+                } else {
+                    majorText.setTextColor(getColor(R.color.normal_gray));
+                    majorView.setBackgroundColor(getColor(R.color.normal_gray));
+                }
+            }
+        });
+
+        jobEdit.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (jobEdit.getText().length() != 0) {
+                    jobText.setTextColor(getColor(R.color.purple_4));
+                    jobView.setBackgroundColor(getColor(R.color.purple_4));
+                } else {
+                    jobText.setTextColor(getColor(R.color.normal_gray));
+                    jobView.setBackgroundColor(getColor(R.color.normal_gray));
+                }
+            }
+        });
+
+        historyEdit.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (historyEdit.getText().length() != 0) {
+                    historyText.setTextColor(getColor(R.color.purple_4));
+                    historyView.setBackgroundColor(getColor(R.color.purple_4));
+                } else {
+                    historyText.setTextColor(getColor(R.color.normal_gray));
+                    historyView.setBackgroundColor(getColor(R.color.normal_gray));
+                }
+            }
+        });
+
+
+        save = (Button) findViewById(R.id.user_save);
+        cancel = (Button) findViewById(R.id.user_cancel);
+        divider = findViewById(R.id.divider);
+    }
+
+    private boolean save() {
+        if (nameEdit.getText().toString().equals("")
+                || emailEdit.getText().toString().equals("")
+                || jobEdit.getText().toString().equals("")
+                || majorEdit.getText().toString().equals("")
+                || historyEdit.getText().toString().equals("")) {
+            return false;
+        }
 
         String userId = getIntent().getStringExtra("user_id");
-        String nameStr = name.getText().toString();
-        String jobStr = job.getText().toString();
-        String emailStr = email.getText().toString();
+        String nameStr = nameEdit.getText().toString();
+        String emailStr = emailEdit.getText().toString();
+        String jobStr = jobEdit.getText().toString();
+        String majorStr = majorEdit.getText().toString();
+        String historyStr = historyEdit.getText().toString();
 
         SharedPreferences prefs = getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         prefs
@@ -105,19 +289,24 @@ public class EditUserInfoActivity extends Activity {
                 .putString(USER_JOB, jobStr)
                 .putString(USER_EMAIL, emailStr)
                 .apply();
-        UserInfoDTO userInfoDTO = new UserInfoDTO(nameStr, jobStr, emailStr);
+        UserInfoDTO userInfoDTO = new UserInfoDTO(nameStr, emailStr, majorStr, jobStr, historyStr);
         fbHelper.saveUser(userId, userInfoDTO);
+        return true;
     }
 
     @Override
     public void onBackPressed() {
-        if (getIntent() != null
-                && getIntent().getBooleanExtra("view_only", false)
-                && !getIntent().getBooleanExtra("is_me", false)) {
+        if (fromDiscover) {
             startActivity(new Intent(this, ClassifierActivity.class));
             finish();
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        fromDiscover = false;
+        super.onDestroy();
     }
 }
