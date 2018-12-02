@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -13,6 +16,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.view.SimpleDraweeView;
 
 import org.tensorflow.yolo.R;
 import org.tensorflow.yolo.model.UserInfoDTO;
@@ -57,10 +63,14 @@ public class EditUserInfoActivity extends Activity {
     private FirebaseHelper fbHelper;
 
     private String title;
+    private SimpleDraweeView profileView;
+
+    private Uri photoURI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fresco.initialize(this);
         setContentView(R.layout.activity_edit_userinfo);
         initViews();
         fbHelper = FirebaseHelper.getInstance();
@@ -81,7 +91,9 @@ public class EditUserInfoActivity extends Activity {
             }
 
             if (getIntent().getBooleanExtra("is_me", false)) {
-                UserInfoDTO dto = fbHelper.getUser(getIntent().getStringExtra("user_id"));
+                String userId = getIntent().getStringExtra("user_id");
+                fbHelper.setProfileAsync(profileView, userId);
+                UserInfoDTO dto = fbHelper.getUser(userId);
                 if (dto != null) {
                     nameEdit.setText(dto.getName());
                     emailEdit.setText(dto.getEmail());
@@ -94,12 +106,15 @@ public class EditUserInfoActivity extends Activity {
                 save.setOnClickListener(v -> {
                     if (save()) {
                         Toast.makeText(this, "Your profile is updated.", Toast.LENGTH_SHORT).show();
+                        finish();
                     }
                 });
             } else {
+                String userId = fbHelper.getUserKey(title);
+                fbHelper.setProfileAsync(profileView, userId);
+
                 if (fromDiscover) {
                     title = getIntent().getStringExtra("title");
-                    String userId = fbHelper.getUserKey(title);
                     UserInfoDTO userInfoDTO = fbHelper.getUserBySticker(title);
 
                     save.setText("Add");
@@ -117,6 +132,7 @@ public class EditUserInfoActivity extends Activity {
                     });
                 }
 
+                profileView.setOnClickListener(null);
                 nameEdit.setEnabled(false);
                 emailEdit.setEnabled(false);
                 majorEdit.setEnabled(false);
@@ -149,6 +165,28 @@ public class EditUserInfoActivity extends Activity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode != RESULT_OK){
+            return;
+        }
+        switch (requestCode){
+            case 0 : {
+                //앨범에서 가져오기
+                if(data.getData()!=null){
+                    try{
+                        photoURI = data.getData();
+                        fbHelper.saveMyProfile(photoURI, profileView);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+                break;
+            }
+        }
+    }
+
     private void initViews() {
         nameText = (TextView) findViewById(R.id.name_text);
         nameEdit = (EditText) findViewById(R.id.name_input);
@@ -169,6 +207,18 @@ public class EditUserInfoActivity extends Activity {
         historyText = (TextView) findViewById(R.id.history_text);
         historyEdit = (EditText) findViewById(R.id.history_input);
         historyView = findViewById(R.id.history_line);
+
+        profileView = (SimpleDraweeView) findViewById(R.id.my_image_view);
+
+        profileView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
+                intent.setType("image/*");
+                startActivityForResult(intent,0);
+            }
+        });
 
         nameEdit.addTextChangedListener(new TextWatcher() {
             @Override

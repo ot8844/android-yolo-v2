@@ -1,19 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/light_gray"
     android:orientation="vertical">
 
+    <com.facebook.drawee.view.SimpleDraweeView
+        android:id="@+id/back_view"
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="25dp"
+        fresco:roundAsCircle="true"
+        fresco:placeholderImage="@drawable/image_placeholder_white"
+        />
+
+    <com.facebook.drawee.view.SimpleDraweeView
+        android:id="@+id/my_image_view"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        fresco:roundAsCircle="true"
+        fresco:placeholderImage="@drawable/image_placeholder"
+        />
 
     <RelativeLayout
         android:id="@+id/layout1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/padding"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="190dp"
         android:layout_marginRight="@dimen/padding">
 
         <TextView

@@ -2,13 +2,24 @@ package org.tensorflow.yolo.util;
 
 import android.graphics.Matrix;
 import android.media.Image;
+import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.facebook.drawee.view.SimpleDraweeView;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import org.tensorflow.yolo.model.UserInfoDTO;
 
@@ -30,6 +41,8 @@ public class FirebaseHelper {
 
     private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference databaseReference = firebaseDatabase.getReference();
+    private FirebaseStorage storage = FirebaseStorage.getInstance("gs://keonilkim-aos.appspot.com");
+    private StorageReference storageRef = storage.getReference();
 
     private HashMap<String, UserInfoDTO> users = new HashMap<String, UserInfoDTO>();
     private HashMap<String, String> sticker_to_user = new HashMap<String, String>();
@@ -139,6 +152,44 @@ public class FirebaseHelper {
         databaseReference.child("saved_users").child(userKey).setValue(userInfoDTO);
     }
 
+    public void saveMyProfile(Uri file, SimpleDraweeView profile) {
+        final StorageReference ref = storageRef.child("images/"+MY_USER_ID+".jpg");
+        UploadTask uploadTask = ref.putFile(file);
+        Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+            @Override
+            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                if (!task.isSuccessful()) {
+                    throw task.getException();
+                }
+
+                // Continue with the task to get the download URL
+                return ref.getDownloadUrl();
+            }
+        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+            @Override
+            public void onComplete(@NonNull Task<Uri> task) {
+                if (task.isSuccessful()) {
+                    Uri downloadUri = task.getResult();
+                    profile.setImageURI(downloadUri);
+                }
+            }
+        });
+    }
+
+    public void setProfileAsync(SimpleDraweeView profile, String userId) {
+        storageRef.child("images/"+userId+".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                profile.setImageURI(uri);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle any errors
+            }
+        });
+    }
+
     public void removeUserFromMyList(String userKey) {
         databaseReference.child("saved_users").child(userKey).removeValue();
     }
@@ -156,21 +207,6 @@ public class FirebaseHelper {
     }
 
     public UserInfoDTO getUser(String userKey) {
-        Log.d("jack_debug2", "sticker title: " + userKey);
-        Log.d("jack_debug2", "st size: " + sticker_to_user.size());
-        Log.d("jack_debug2", "user_id : " + sticker_to_user.get(userKey));
-        for (Map.Entry<String, String> entry : sticker_to_user.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            Log.d("jack_debug2", "stickers: " + key + " value: " + value);
-
-        }
-        for (Map.Entry<String, UserInfoDTO> entry : users.entrySet()) {
-            String key = entry.getKey();
-            UserInfoDTO value = entry.getValue();
-            Log.d("jack_debug2", "stickers: " + key + " value: " + value.getName());
-
-        }
         return users.get(userKey);
     }
 
