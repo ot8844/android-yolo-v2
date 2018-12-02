@@ -300,7 +300,6 @@ public class EditUserInfoActivity extends Activity {
             startActivity(new Intent(this, ClassifierActivity.class));
             finish();
         } else {
-            Log.e("aaa", "aaa");
             super.onBackPressed();
         }
     }

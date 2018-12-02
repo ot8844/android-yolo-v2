@@ -37,7 +37,6 @@
         <activity android:name=".view.StatusActivity" />
         <activity
             android:name=".view.UserListActivity"
-            android:theme="@android:style/Theme.Dialog"
             />
     </application>
 
