@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -56,9 +57,9 @@ public class EditUserInfoActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_userinfo);
         initViews();
-        fbHelper = new FirebaseHelper();
+        fbHelper = FirebaseHelper.getInstance();
 
-        if (getIntent() != null) {
+        if (getIntent() != null && !getIntent().getBooleanExtra("sign_up", false)) {
             nameEdit.setText(getIntent().getStringExtra("name"));
             emailEdit.setText(getIntent().getStringExtra("email"));
             majorEdit.setText(getIntent().getStringExtra("major"));
@@ -102,7 +103,6 @@ public class EditUserInfoActivity extends Activity {
                 jobEdit.setEnabled(false);
                 historyEdit.setEnabled(false);
             }
-            return;
         } else {
             save.setOnClickListener(v -> {
                 if (save()) {
@@ -300,6 +300,7 @@ public class EditUserInfoActivity extends Activity {
             startActivity(new Intent(this, ClassifierActivity.class));
             finish();
         } else {
+            Log.e("aaa", "aaa");
             super.onBackPressed();
         }
     }

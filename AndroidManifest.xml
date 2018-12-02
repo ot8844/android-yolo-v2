@@ -25,7 +25,7 @@
         <activity
             android:name=".view.ClassifierActivity"
             android:label="@string/activity_name_classification"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <activity android:name=".view.EditUserInfoActivity" />
         <activity android:name=".view.LoginActivity">
             <intent-filter>
@@ -34,7 +34,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.StatusActivity"></activity>
+        <activity android:name=".view.StatusActivity" />
+        <activity
+            android:name=".view.UserListActivity"
+            android:theme="@android:style/Theme.Dialog"
+            />
     </application>
 
 </manifest>

@@ -1,11 +1,30 @@
 package org.tensorflow.yolo.model;
 
+import java.util.Objects;
+
 public class UserInfoDTO {
     private String name;
     private String email;
     private String major;
     private String job;
     private String history;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserInfoDTO that = (UserInfoDTO) o;
+        return Objects.equals(name, that.name) &&
+                Objects.equals(email, that.email) &&
+                Objects.equals(major, that.major) &&
+                Objects.equals(job, that.job) &&
+                Objects.equals(history, that.history);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, email, major, job, history);
+    }
 
     public UserInfoDTO(String name, String email, String major, String job, String history) {
         this.name = name;

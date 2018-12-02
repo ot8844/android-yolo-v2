@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/padding"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="80dp"
         android:layout_marginRight="@dimen/padding">
 
         <TextView
@@ -45,7 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_below="@+id/name_input"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:background="@color/normal_gray"
             tools:background="@color/purple_4" />
     </RelativeLayout>
@@ -88,7 +88,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_below="@+id/email_input"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:background="@color/normal_gray" />
     </RelativeLayout>
 
@@ -130,7 +130,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_below="@+id/major_input"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:background="@color/normal_gray" />
     </RelativeLayout>
 
@@ -172,7 +172,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_below="@+id/job_input"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:background="@color/normal_gray" />
     </RelativeLayout>
 
@@ -214,7 +214,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_below="@+id/history_input"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:background="@color/normal_gray" />
     </RelativeLayout>
 

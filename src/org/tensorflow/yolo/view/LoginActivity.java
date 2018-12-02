@@ -63,10 +63,10 @@ public class LoginActivity extends Activity {
             @Override
             public void onClick(View view) {
                 //FIXME : 이거 주석 바꿔야함 넥서스 테스트 때문에 이렇게 했음.
-//                Intent signInIntent = googleSignInClient.getSignInIntent();
-//                startActivityForResult(signInIntent, RC_SIGN_IN);
-                Intent intent = new Intent(LoginActivity.this, EditUserInfoActivity.class);
-                startActivity(IntentWithUserId(intent, "123124123"));
+                Intent signInIntent = googleSignInClient.getSignInIntent();
+                startActivityForResult(signInIntent, RC_SIGN_IN);
+//                Intent intent = new Intent(LoginActivity.this, EditUserInfoActivity.class);
+//                startActivity(IntentWithUserId(intent, "123124123"));
             }
         });
     }
@@ -88,6 +88,7 @@ public class LoginActivity extends Activity {
                     startActivity(intent);
                 } else {
                     Intent intent = new Intent(LoginActivity.this, EditUserInfoActivity.class);
+                    intent.putExtra("sign_up", true);
                     startActivity(IntentWithUserId(intent, acct.getId()));
                 }
                 finish();
@@ -114,6 +115,7 @@ public class LoginActivity extends Activity {
                                 startActivity(intent);
                             } else {
                                 Intent intent = new Intent(LoginActivity.this, EditUserInfoActivity.class);
+                                intent.putExtra("sign_up", true);
                                 startActivity(IntentWithUserId(intent, acct.getId()));
                             }
                             finish();

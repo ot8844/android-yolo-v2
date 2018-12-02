@@ -71,7 +71,7 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        fbHelper = new FirebaseHelper();
+        fbHelper = FirebaseHelper.getInstance();
     }
 
     @Override
@@ -203,7 +203,6 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
         if (recognizer != null) {
             recognizer.close();
         }
-        Log.e("aaa", "Classifier onDestroy");
     }
 
     private void renderAdditionalInformation(final Canvas canvas) {
