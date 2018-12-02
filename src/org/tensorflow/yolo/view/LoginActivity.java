@@ -83,6 +83,7 @@ public class LoginActivity extends Activity {
                 GoogleSignInAccount acct = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(acct);
                 SharedPreferences prefs = getSharedPreferences(EditUserInfoActivity.PREFS, Context.MODE_PRIVATE);
+                FirebaseHelper.MY_USER_ID = acct.getId();
                 if (prefs.getBoolean(EditUserInfoActivity.SAVED, false)) {
                     Intent intent = new Intent(LoginActivity.this, StatusActivity.class);
                     startActivity(intent);
@@ -110,6 +111,7 @@ public class LoginActivity extends Activity {
                             // 로그인 성공
                             Toast.makeText(LoginActivity.this, R.string.success_login, Toast.LENGTH_SHORT).show();
                             SharedPreferences prefs = getSharedPreferences(EditUserInfoActivity.PREFS, Context.MODE_PRIVATE);
+                            FirebaseHelper.MY_USER_ID = acct.getId();
                             if (prefs.getBoolean(EditUserInfoActivity.SAVED, false)) {
                                 Intent intent = new Intent(LoginActivity.this, StatusActivity.class);
                                 startActivity(intent);
@@ -128,7 +130,6 @@ public class LoginActivity extends Activity {
     }
 
     private Intent IntentWithUserId(Intent intent, String userId) {
-        FirebaseHelper.MY_USER_ID = userId;
         return intent.putExtra("user_id", userId);
     }
 }
