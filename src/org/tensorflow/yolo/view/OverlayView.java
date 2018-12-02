@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Pair;
 import android.util.TypedValue;
 import android.view.View;
 
@@ -69,14 +70,14 @@ public class OverlayView extends View {
         postInvalidate();
     }
 
-    public HashMap<String, RectF> getTitleBoxMap(final List<Recognition> results) {
+    public HashMap<String, Pair<RectF, Recognition>> getTitleBoxMap(final List<Recognition> results) {
         this.results = results;
-        HashMap<String, RectF> titleBoxMap = new LinkedHashMap<>();
+        HashMap<String, Pair<RectF, Recognition>> titleBoxMap = new LinkedHashMap<>();
         if (results != null) {
             for (int i = 0; i < results.size(); i++) {
                 RectF box = reCalcSize(results.get(i).getLocation());
                 String title = results.get(i).getTitle();
-                titleBoxMap.put(title, box);
+                titleBoxMap.put(title, new Pair<>(box, results.get(i)));
             }
         }
         return titleBoxMap;

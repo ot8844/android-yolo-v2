@@ -86,6 +86,7 @@ public class FirebaseHelper {
     public String getUserKey(String sticker){
         return sticker_to_user.get(sticker);
     }
+    public HashMap<String, String> getStickers() { return sticker_to_user; }
 
     public UserInfoDTO getUser(String userKey){
         Log.d("jack_debug2", "sticker title: " + userKey);

@@ -13,6 +13,7 @@ import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
+import android.util.Pair;
 import android.util.Size;
 import android.util.TypedValue;
 import android.view.View;
@@ -58,6 +59,7 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
     private int previewWidth = 0;
     private int previewHeight = 0;
     private Bitmap croppedBitmap = null;
+    private Bitmap rgbFrameBitmap = null;
     private boolean computing = false;
     private Matrix frameToCropTransform;
 
@@ -136,6 +138,7 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
             final long startTime = SystemClock.uptimeMillis();
             Log.d(LOGGING_TAG, "bitmap: " + croppedBitmap.toString());
             final List<Recognition> results = recognizer.recognizeImage(croppedBitmap);
+
             lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
 //            overlayView.setResults(results);
             runOnUiThread(() -> {
@@ -147,11 +150,13 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
 //                Recognition r2 = new Recognition(1, "WassupMan", 1.0f, new BoxPosition(400, 400, 2, 2));
 //                results.add(r1);
 //                results.add(r2);
-                HashMap<String, RectF> titleMap = overlayView.getTitleBoxMap(results);
+                HashMap<String, Pair<RectF, Recognition>> titleMap = overlayView.getTitleBoxMap(results);
+                HashMap<String, String> stickers = fbHelper.getStickers();
                 results.clear();
-                for (Map.Entry<String, RectF> entry : titleMap.entrySet()) {
+                for (Map.Entry<String, Pair<RectF, Recognition>> entry : titleMap.entrySet()) {
                     String title = entry.getKey();
-                    RectF box = entry.getValue();
+                    RectF box = entry.getValue().first;
+                    Recognition recog = entry.getValue().second;
                     UserInfoDTO user = fbHelper.getUserBySticker(title);
                     String user_id = fbHelper.getUserKey(title);
 
@@ -175,10 +180,11 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
                     rel_btn.topMargin = (int) box.top;
                     button.setLayoutParams(rel_btn);
                     button.setBackgroundColor(getResources().getColor(R.color.control_background));
+
                     if (user != null) {
-                        button.setText(user.getName() + ":" + user.getJob());
+                        button.setText(String.format("%s: %s, %.2f", user.getName(), user.getJob(), recog.getConfidence()));
                     }else{
-                        button.setText("유저 정보 없음");
+                        button.setText(String.format("%s, %.2f", "유저 정보 없음", recog.getConfidence()));
                     }
                     relativeLayout.addView(button);
                     recognizedViews.add(button);
@@ -191,7 +197,7 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
     }
 
     private void fillCroppedBitmap(final Image image) {
-        Bitmap rgbFrameBitmap = Bitmap.createBitmap(previewWidth, previewHeight, Config.ARGB_8888);
+        rgbFrameBitmap = Bitmap.createBitmap(previewWidth, previewHeight, Config.ARGB_8888);
         rgbFrameBitmap.setPixels(ImageUtils.convertYUVToARGB(image, previewWidth, previewHeight),
                 0, previewWidth, 0, 0, previewWidth, previewHeight);
         new Canvas(croppedBitmap).drawBitmap(rgbFrameBitmap, frameToCropTransform, null);
