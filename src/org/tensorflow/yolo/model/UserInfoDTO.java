@@ -10,6 +10,17 @@ public class UserInfoDTO {
     private String history;
 
     @Override
+    public String toString() {
+        return "UserInfoDTO{" +
+                "name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", major='" + major + '\'' +
+                ", job='" + job + '\'' +
+                ", history='" + history + '\'' +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

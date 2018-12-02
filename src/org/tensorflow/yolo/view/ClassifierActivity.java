@@ -163,9 +163,12 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
                             if (user == null) return;
                             Intent intent = new Intent(ClassifierActivity.this, EditUserInfoActivity.class);
                             EditUserInfoActivity.fromDiscover = true;
+                            intent.putExtra("title", title);
                             intent.putExtra("name", user.getName());
                             intent.putExtra("job", user.getJob());
                             intent.putExtra("email", user.getEmail());
+                            intent.putExtra("major", user.getMajor());
+                            intent.putExtra("history", user.getHistory());
                             startActivity(intent);
                         }
                     });

@@ -18,6 +18,9 @@ import org.tensorflow.yolo.R;
 import org.tensorflow.yolo.model.UserInfoDTO;
 import org.tensorflow.yolo.util.FirebaseHelper;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class EditUserInfoActivity extends Activity {
     public static final String PREFS = "PREFS";
     public static final String SAVED = "SAVED";
@@ -27,6 +30,7 @@ public class EditUserInfoActivity extends Activity {
     public static final String USER_EMAIL = "USER_EMAIL";
 
     public static boolean fromDiscover = false;
+    public static UserInfoDTO dto;
 
     private TextView nameText;
     private EditText nameEdit;
@@ -52,6 +56,8 @@ public class EditUserInfoActivity extends Activity {
     private View divider;
     private FirebaseHelper fbHelper;
 
+    private String title;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +71,14 @@ public class EditUserInfoActivity extends Activity {
             majorEdit.setText(getIntent().getStringExtra("major"));
             jobEdit.setText(getIntent().getStringExtra("job"));
             historyEdit.setText(getIntent().getStringExtra("history"));
+
+            if(dto != null) {
+                nameEdit.setText(dto.getName());
+                emailEdit.setText(dto.getEmail());
+                majorEdit.setText(dto.getMajor());
+                jobEdit.setText(dto.getJob());
+                historyEdit.setText(dto.getHistory());
+            }
 
             if (getIntent().getBooleanExtra("is_me", false)) {
                 UserInfoDTO dto = fbHelper.getUser(getIntent().getStringExtra("user_id"));
@@ -84,16 +98,22 @@ public class EditUserInfoActivity extends Activity {
                 });
             } else {
                 if (fromDiscover) {
+                    title = getIntent().getStringExtra("title");
+                    String userId = fbHelper.getUserKey(title);
+                    UserInfoDTO userInfoDTO = fbHelper.getUserBySticker(title);
+
                     save.setText("Add");
                     save.setOnClickListener(v -> {
-                        addToMyList();
+                        addToMyList(userId, userInfoDTO);
                         Toast.makeText(this, "User is added to your list.", Toast.LENGTH_SHORT).show();
                     });
                 } else {
                     save.setText("Delete");
                     save.setOnClickListener(v -> {
-                        deleteFromMyList();
-                        Toast.makeText(this, "User is deleted from your list.", Toast.LENGTH_SHORT).show();
+                        if (dto != null) {
+                            deleteFromMyList(dto);
+                            Toast.makeText(this, "User is deleted from your list.", Toast.LENGTH_SHORT).show();
+                        }
                     });
                 }
 
@@ -115,12 +135,18 @@ public class EditUserInfoActivity extends Activity {
         cancel.setOnClickListener(v -> onBackPressed());
     }
 
-    private void addToMyList() {
-        // TODO : Discover에서 온 경우에 리스트에 저장해야함.
+    private void addToMyList(String userKey, UserInfoDTO userInfoDTO) {
+        fbHelper.saveUserToMyList(userKey, userInfoDTO);
     }
 
-    private void deleteFromMyList() {
-        // TODO : Discover에서 온 경우에 리스트에서 삭제해야함.
+    private void deleteFromMyList(UserInfoDTO userInfoDTO) {
+        HashMap<String, UserInfoDTO> map = fbHelper.getUsers();
+        for (Map.Entry<String, UserInfoDTO> entry : map.entrySet()) {
+            if (userInfoDTO.equals(entry.getValue())) {
+                fbHelper.removeUserFromMyList(entry.getKey());
+                return;
+            }
+        }
     }
 
     private void initViews() {

@@ -99,7 +99,8 @@ public class FirebaseHelper {
         ChildEventListener savedUserListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String prevChildKey) {
-                savedUserList.add((UserInfoDTO) dataSnapshot.getValue());
+                UserInfoDTO user_info = dataSnapshot.getValue(UserInfoDTO.class);
+                savedUserList.add(user_info);
             }
 
             @Override
@@ -108,7 +109,8 @@ public class FirebaseHelper {
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                savedUserList.remove(dataSnapshot.getValue());
+                UserInfoDTO user_info = dataSnapshot.getValue(UserInfoDTO.class);
+                savedUserList.remove(user_info);
             }
 
             @Override
@@ -143,6 +145,10 @@ public class FirebaseHelper {
 
     public List<UserInfoDTO> getSavedUserList() {
         return savedUserList;
+    }
+
+    public HashMap<String, UserInfoDTO> getUsers() {
+        return users;
     }
 
     public String getUserKey(String sticker) {

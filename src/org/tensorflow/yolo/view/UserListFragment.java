@@ -3,6 +3,7 @@ package org.tensorflow.yolo.view;
 import android.app.Activity;
 import android.content.ContentQueryMap;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -26,6 +27,7 @@ import java.util.List;
 
 public class UserListFragment extends android.support.v4.app.Fragment {
     private FirebaseHelper firebaseHelper = FirebaseHelper.getInstance();
+    private UserListAdapter adapter;
 
     public UserListFragment() {
     }
@@ -41,8 +43,14 @@ public class UserListFragment extends android.support.v4.app.Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ListView listView = (ListView) view.findViewById(R.id.list_view);
-        UserListAdapter adapter = new UserListAdapter(getActivity(), firebaseHelper.getSavedUserList());
+        adapter = new UserListAdapter(getActivity(), firebaseHelper.getSavedUserList());
         listView.setAdapter(adapter);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        adapter.notifyDataSetChanged();
     }
 
     private static class UserListAdapter extends BaseAdapter {
@@ -86,7 +94,11 @@ public class UserListFragment extends android.support.v4.app.Fragment {
             UserInfoDTO user = (UserInfoDTO) getItem(position);
             holder.name.setText(user.getName());
             holder.job.setText(user.getJob());
-            convertView.setOnClickListener(v -> userListActivity.clickUser(user));
+            convertView.setOnClickListener(v -> {
+                Intent intent = new Intent(userListActivity, EditUserInfoActivity.class);
+                EditUserInfoActivity.dto = user;
+                userListActivity.startActivity(intent);
+            });
             return convertView;
         }
 
