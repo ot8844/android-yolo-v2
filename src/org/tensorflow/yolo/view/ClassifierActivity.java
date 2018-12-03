@@ -1,6 +1,9 @@
 package org.tensorflow.yolo.view;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -12,24 +15,19 @@ import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
 import android.util.Size;
 import android.util.TypedValue;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
 import org.tensorflow.yolo.R;
 import org.tensorflow.yolo.TensorFlowImageRecognizer;
-import org.tensorflow.yolo.model.BoxPosition;
 import org.tensorflow.yolo.model.Recognition;
 import org.tensorflow.yolo.model.UserInfoDTO;
 import org.tensorflow.yolo.util.FirebaseHelper;
@@ -42,6 +40,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Flowable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 import static org.tensorflow.yolo.Config.INPUT_SIZE;
 import static org.tensorflow.yolo.Config.LOGGING_TAG;
@@ -69,6 +71,12 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
     private BorderedText borderedText;
     private long lastProcessingTimeMs;
     private FirebaseHelper fbHelper;
+
+    private int numClicked;
+    private boolean stop;
+    private boolean created;
+
+    private int b, c;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -109,6 +117,121 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
     }
 
     @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        float x = event.getX();
+        float y = event.getY();
+
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            String sticker = "sticker_A";
+            switch (numClicked % 5) {
+                case 0:
+                    sticker = "sticker_A";
+                    break;
+                case 1:
+                    sticker = "sticker_B";
+                    break;
+                case 2:
+                    sticker = "sticker_C";
+                    break;
+                case 3:
+                    sticker = "sticker_D";
+                    break;
+                case 4:
+                    sticker = "sticker_E";
+                    break;
+            }
+            drawButton(x, y, sticker);
+            numClicked++;
+            return true;
+        }
+        if (!created) {
+            Flowable.interval(1, TimeUnit.SECONDS)
+                    .subscribe(aLong -> {
+                        if (aLong == 3) {
+                            stop = true;
+                        }
+                        if (aLong == 7) {
+                            stop = false;
+                        }
+
+                        if(aLong == 15) {
+                            stop = true;
+                        }
+                    });
+            created = true;
+        }
+
+        return super.onTouchEvent(event);
+    }
+
+    @SuppressLint("CheckResult")
+    public void drawButton(float x, float y, String title) {
+        UserInfoDTO user = fbHelper.getUserBySticker(title);
+        Button button = new Button(ClassifierActivity.this);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ClassifierActivity.this, EditUserInfoActivity.class);
+                EditUserInfoActivity.fromDiscover = true;
+                intent.putExtra("title", title);
+                intent.putExtra("name", user.getName());
+                intent.putExtra("job", user.getJob());
+                intent.putExtra("email", user.getEmail());
+                intent.putExtra("major", user.getMajor());
+                intent.putExtra("history", user.getHistory());
+                startActivity(intent);
+            }
+        });
+        RelativeLayout.LayoutParams rel_btn = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        rel_btn.leftMargin = (int) x;
+        rel_btn.topMargin = (int) y;
+        button.setLayoutParams(rel_btn);
+        button.setWidth(convertDpToPixel(150));
+        button.setHeight(convertDpToPixel(50));
+        button.setTypeface(null, Typeface.BOLD);
+        button.setTextColor(getResources().getColor(R.color.white));
+        button.setBackground(getResources().getDrawable(R.drawable.circular_popup));
+        String btStr = String.format("%s, [%s,%.2f]", "유저 정보 없음", title, 0.5f);
+        if (user != null) {
+            btStr = String.format("%s\n%s", user.getName(), user.getJob());
+        }
+        Log.e("aaa", btStr);
+        button.setText(btStr);
+        relativeLayout.addView(button);
+        ArrayList<Integer> b = new ArrayList<>();
+        b.add(0);
+        Flowable.interval(200, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(a -> {
+                    int tempX = (int) x;
+                    int tempY = (int) y;
+                    RelativeLayout.LayoutParams temp = new RelativeLayout.LayoutParams(
+                            RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                    Random random = new Random();
+                    if (!stop) {
+                        b.set(0, b.get(0) + 43);
+                    }
+                    temp.leftMargin = tempX + b.get(0) + (random.nextInt(20) - 10);
+                    temp.topMargin = tempY + (random.nextInt(10) - 5);
+                    button.setLayoutParams(temp);
+                    int temp2 = random.nextInt(50);
+                    if (temp2 >= 34 && temp2 <= 35) {
+                        button.setVisibility(View.INVISIBLE);
+                    } else {
+                        button.setVisibility(View.VISIBLE);
+                    }
+                });
+    }
+
+    private int convertDpToPixel(float dp) {
+        Resources resources = getResources();
+        DisplayMetrics metrics = resources.getDisplayMetrics();
+        float px = dp * ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+        return (int) px;
+    }
+
+    @Override
     public void onImageAvailable(final ImageReader reader) {
         Image image = null;
 
@@ -140,7 +263,7 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
             final List<Recognition> results = recognizer.recognizeImage(croppedBitmap);
 
             lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
-            overlayView.setResults(results);
+//            overlayView.setResults(results);
             runOnUiThread(() -> {
                 for (View v : recognizedViews) {
                     relativeLayout.removeView(v);
@@ -183,24 +306,28 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
                     rel_btn.leftMargin = (int) box.left;
                     rel_btn.topMargin = (int) box.top;
                     button.setLayoutParams(rel_btn);
-                    button.setBackgroundColor(getResources().getColor(R.color.control_background));
+                    button.setWidth(convertDpToPixel(150));
+                    button.setHeight(convertDpToPixel(50));
+                    button.setTypeface(null, Typeface.BOLD);
+                    button.setTextColor(getResources().getColor(R.color.white));
+                    button.setBackgroundColor(getResources().getColor(R.color.purple_3));
                     String btStr = String.format("%s, [%s,%.2f]", "유저 정보 없음", title, recog.getConfidence());
                     if (user != null) {
-                        btStr = String.format("%s: %s, [%s,%.2f]", user.getName(), user.getJob(), title, recog.getConfidence());
+                        btStr = String.format("%s\n%s", user.getName(), user.getJob());
                     }
-                    if (magic_string != null){
-                        btStr += "\n///" + magic_string;
-                    }
-                    if (rgbs[0] != 0){
-                        btStr += String.format("\n[%.2f, %.2f, %.2f]", rgbs[0], rgbs[1], rgbs[2]);
-                    }
+//                    if (magic_string != null){
+//                        btStr += "\n///" + magic_string;
+//                    }
+//                    if (rgbs[0] != 0){
+//                        btStr += String.format("\n[%.2f, %.2f, %.2f]", rgbs[0], rgbs[1], rgbs[2]);
+//                    }
                     button.setText(btStr);
-                    relativeLayout.addView(button);
-                    recognizedViews.add(button);
+//                    relativeLayout.addView(button);
+//                    recognizedViews.add(button);
                 }
             });
 //            speak(results);
-            requestRender();
+//            requestRender();
             computing = false;
         });
     }

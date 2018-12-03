@@ -3,3 +3,6 @@ sticker_B
 sticker_C
 sticker_D
 sticker_E
+sticker_F
+sticker_G
+sticker_H

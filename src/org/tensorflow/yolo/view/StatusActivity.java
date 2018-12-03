@@ -7,6 +7,8 @@ import android.text.Html;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.facebook.drawee.backends.pipeline.Fresco;
+
 import org.tensorflow.yolo.R;
 import org.tensorflow.yolo.util.FirebaseHelper;
 
@@ -19,6 +21,7 @@ public class StatusActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fresco.initialize(this);
         setContentView(R.layout.activity_status);
 
         TextView titleTextView = (TextView) findViewById(R.id.title);

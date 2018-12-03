@@ -75,13 +75,14 @@ public class EditUserInfoActivity extends Activity {
         initViews();
         fbHelper = FirebaseHelper.getInstance();
 
-        if (getIntent() != null && !getIntent().getBooleanExtra("sign_up", false)) {
-            nameEdit.setText(getIntent().getStringExtra("name"));
-            emailEdit.setText(getIntent().getStringExtra("email"));
-            majorEdit.setText(getIntent().getStringExtra("major"));
-            jobEdit.setText(getIntent().getStringExtra("job"));
-            historyEdit.setText(getIntent().getStringExtra("history"));
+        title = getIntent().getStringExtra("title");
+        nameEdit.setText(getIntent().getStringExtra("name"));
+        emailEdit.setText(getIntent().getStringExtra("email"));
+        majorEdit.setText(getIntent().getStringExtra("major"));
+        jobEdit.setText(getIntent().getStringExtra("job"));
+        historyEdit.setText(getIntent().getStringExtra("history"));
 
+        if (getIntent() != null && !getIntent().getBooleanExtra("sign_up", false)) {
             if(dto != null) {
                 nameEdit.setText(dto.getName());
                 emailEdit.setText(dto.getEmail());
@@ -114,7 +115,6 @@ public class EditUserInfoActivity extends Activity {
                 fbHelper.setProfileAsync(profileView, userId);
 
                 if (fromDiscover) {
-                    title = getIntent().getStringExtra("title");
                     UserInfoDTO userInfoDTO = fbHelper.getUserBySticker(title);
 
                     save.setText("Add");

@@ -106,6 +106,7 @@ public class UserListFragment extends android.support.v4.app.Fragment {
 
             convertView.setOnClickListener(v -> {
                 Intent intent = new Intent(userListActivity, EditUserInfoActivity.class);
+                intent.putExtra("title", FirebaseHelper.getInstance().getTitle(user));
                 EditUserInfoActivity.dto = user;
                 userListActivity.startActivity(intent);
             });

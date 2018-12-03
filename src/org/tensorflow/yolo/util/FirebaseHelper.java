@@ -154,10 +154,13 @@ public class FirebaseHelper {
     public void saveUserToMyList(String userKey, UserInfoDTO userInfoDTO) {
         databaseReference.child("saved_users").child(userKey).setValue(userInfoDTO);
     }
-    public HashMap<String, StickerDTO> getStickers() { return stickers; }
+
+    public HashMap<String, StickerDTO> getStickers() {
+        return stickers;
+    }
 
     public void saveMyProfile(Uri file, SimpleDraweeView profile) {
-        final StorageReference ref = storageRef.child("images/"+MY_USER_ID+".jpg");
+        final StorageReference ref = storageRef.child("images/" + MY_USER_ID + ".jpg");
         UploadTask uploadTask = ref.putFile(file);
         Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
             @Override
@@ -181,7 +184,7 @@ public class FirebaseHelper {
     }
 
     public void setProfileAsync(SimpleDraweeView profile, String userId) {
-        storageRef.child("images/"+userId+".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+        storageRef.child("images/" + userId + ".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
                 profile.setImageURI(uri);
@@ -207,6 +210,16 @@ public class FirebaseHelper {
         return null;
     }
 
+    public String getTitle(UserInfoDTO userInfoDTO) {
+        String userId = getUserId(userInfoDTO);
+        for (Map.Entry<String, StickerDTO> entry : stickers.entrySet()) {
+            if (entry.getValue().getTargetUser().equals(userId)) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
     public List<UserInfoDTO> getSavedUserList() {
         return savedUserList;
     }
@@ -225,6 +238,7 @@ public class FirebaseHelper {
 
     public UserInfoDTO getUserBySticker(String sticker) {
         String key = stickers.get(sticker).getTargetUser();
+        Log.e("aaa", "size : " + stickers.size());
         if (key == null) {
             return null;
         }
