@@ -15,8 +15,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="25dp"
         fresco:roundAsCircle="true"
-        fresco:placeholderImage="@drawable/image_placeholder_white"
         />
+        <!--fresco:placeholderImage="@drawable/image_placeholder_white"-->
 
     <com.facebook.drawee.view.SimpleDraweeView
         android:id="@+id/my_image_view"
@@ -25,8 +25,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="30dp"
         fresco:roundAsCircle="true"
-        fresco:placeholderImage="@drawable/image_placeholder"
         />
+        <!--fresco:placeholderImage="@drawable/image_placeholder"-->
 
     <RelativeLayout
         android:id="@+id/layout1"

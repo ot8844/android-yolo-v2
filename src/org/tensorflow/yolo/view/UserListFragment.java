@@ -17,6 +17,8 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.facebook.drawee.view.SimpleDraweeView;
+
 import org.tensorflow.yolo.R;
 import org.tensorflow.yolo.model.UserInfoDTO;
 import org.tensorflow.yolo.util.FirebaseHelper;
@@ -87,6 +89,7 @@ public class UserListFragment extends android.support.v4.app.Fragment {
                 holder = new ViewHolder();
                 holder.name = (TextView) convertView.findViewById(R.id.user_name);
                 holder.job = (TextView) convertView.findViewById(R.id.user_job);
+                holder.profile = (SimpleDraweeView) convertView.findViewById(R.id.user_profile);
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder) convertView.getTag();
@@ -94,6 +97,13 @@ public class UserListFragment extends android.support.v4.app.Fragment {
             UserInfoDTO user = (UserInfoDTO) getItem(position);
             holder.name.setText(user.getName());
             holder.job.setText(user.getJob());
+
+            FirebaseHelper helper = FirebaseHelper.getInstance();
+            String userId = helper.getUserId(user);
+            if (userId != null) {
+                helper.setProfileAsync(holder.profile, userId);
+            }
+
             convertView.setOnClickListener(v -> {
                 Intent intent = new Intent(userListActivity, EditUserInfoActivity.class);
                 EditUserInfoActivity.dto = user;
@@ -103,6 +113,7 @@ public class UserListFragment extends android.support.v4.app.Fragment {
         }
 
         static class ViewHolder {
+            SimpleDraweeView profile;
             TextView name, job;
         }
     }

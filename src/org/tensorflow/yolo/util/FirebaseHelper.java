@@ -194,6 +194,15 @@ public class FirebaseHelper {
         databaseReference.child("saved_users").child(userKey).removeValue();
     }
 
+    public String getUserId(UserInfoDTO userInfoDTO) {
+        for (Map.Entry<String, UserInfoDTO> entry : users.entrySet()) {
+            if (userInfoDTO.equals(entry.getValue())) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
     public List<UserInfoDTO> getSavedUserList() {
         return savedUserList;
     }

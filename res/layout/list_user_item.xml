@@ -1,17 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp"
+    android:layout_height="wrap_content"
     android:paddingLeft="20dp"
-    android:layout_height="wrap_content">
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp">
+
+    <com.facebook.drawee.view.SimpleDraweeView
+        android:id="@+id/user_profile"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:layout_marginRight="10dp"
+        fresco:roundAsCircle="true" />
 
     <TextView
         android:id="@+id/user_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/user_profile"
         android:textColor="@color/black"
+        android:layout_marginTop="5dp"
         android:textSize="20dp"
         android:textStyle="bold"
         tools:text="Mariah Carey" />
@@ -21,6 +31,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/user_name"
+        android:layout_toRightOf="@+id/user_profile"
         android:textColor="@color/normal_gray"
         android:textSize="16dp"
         tools:text="Artist" />
