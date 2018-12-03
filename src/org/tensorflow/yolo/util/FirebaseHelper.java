@@ -151,6 +151,7 @@ public class FirebaseHelper {
     public void saveUserToMyList(String userKey, UserInfoDTO userInfoDTO) {
         databaseReference.child("saved_users").child(userKey).setValue(userInfoDTO);
     }
+    public HashMap<String, String> getStickers() { return sticker_to_user; }
 
     public void saveMyProfile(Uri file, SimpleDraweeView profile) {
         final StorageReference ref = storageRef.child("images/"+MY_USER_ID+".jpg");
