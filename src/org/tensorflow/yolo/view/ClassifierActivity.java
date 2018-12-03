@@ -13,6 +13,7 @@ import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
+import android.util.Pair;
 import android.util.Size;
 import android.util.TypedValue;
 import android.view.View;
@@ -147,11 +148,12 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
 //                Recognition r2 = new Recognition(1, "WassupMan", 1.0f, new BoxPosition(400, 400, 2, 2));
 //                results.add(r1);
 //                results.add(r2);
-                HashMap<String, RectF> titleMap = overlayView.getTitleBoxMap(results);
+                HashMap<String, Pair<RectF, Recognition>> titleMap = overlayView.getTitleBoxMap(results);
                 results.clear();
-                for (Map.Entry<String, RectF> entry : titleMap.entrySet()) {
+                for (Map.Entry<String, Pair<RectF, Recognition>> entry : titleMap.entrySet()) {
                     String title = entry.getKey();
-                    RectF box = entry.getValue();
+                    RectF box = entry.getValue().first;
+                    Recognition recog = entry.getValue().second;
                     UserInfoDTO user = fbHelper.getUserBySticker(title);
                     String user_id = fbHelper.getUserKey(title);
 
@@ -178,11 +180,12 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
                     rel_btn.topMargin = (int) box.top;
                     button.setLayoutParams(rel_btn);
                     button.setBackgroundColor(getResources().getColor(R.color.control_background));
-                    if (user != null) {
-                        button.setText(user.getName() + ":" + user.getJob());
-                    }else{
-                        button.setText("유저 정보 없음");
-                    }
+//                    if (user != null) {
+//                        button.setText(user.getName() + ":" + user.getJob());
+//                    }else{
+//                        button.setText("유저 정보 없음");
+//                    }
+                    button.setText(String.format("%s:%.2f", title, recog.getConfidence()));
                     relativeLayout.addView(button);
                     recognizedViews.add(button);
                 }

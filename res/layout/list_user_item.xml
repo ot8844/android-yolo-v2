@@ -13,6 +13,7 @@
         android:layout_width="65dp"
         android:layout_height="65dp"
         android:layout_marginRight="10dp"
+        fresco:placeholderImage="@drawable/image_placeholder"
         fresco:roundAsCircle="true" />
 
     <TextView
