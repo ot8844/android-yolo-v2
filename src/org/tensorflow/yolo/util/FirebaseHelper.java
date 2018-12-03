@@ -21,6 +21,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import org.tensorflow.yolo.model.StickerDTO;
 import org.tensorflow.yolo.model.UserInfoDTO;
 
 import java.nio.ByteBuffer;
@@ -45,7 +46,7 @@ public class FirebaseHelper {
     private StorageReference storageRef = storage.getReference();
 
     private HashMap<String, UserInfoDTO> users = new HashMap<String, UserInfoDTO>();
-    private HashMap<String, String> sticker_to_user = new HashMap<String, String>();
+    private HashMap<String, StickerDTO> stickers = new HashMap<>();
     private List<UserInfoDTO> savedUserList = new ArrayList<>();
 
     private static class LazyHolder {
@@ -87,17 +88,19 @@ public class FirebaseHelper {
         ChildEventListener stickerListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String prevChildKey) {
-                sticker_to_user.put(dataSnapshot.getKey(), dataSnapshot.getValue().toString());
+                StickerDTO sticker_dto = dataSnapshot.getValue(StickerDTO.class);
+                stickers.put(dataSnapshot.getKey(), sticker_dto);
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String prevChildKey) {
-                sticker_to_user.put(dataSnapshot.getKey(), dataSnapshot.getValue().toString());
+                StickerDTO sticker_dto = dataSnapshot.getValue(StickerDTO.class);
+                stickers.put(dataSnapshot.getKey(), sticker_dto);
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                sticker_to_user.remove(dataSnapshot.getKey());
+                stickers.remove(dataSnapshot.getKey());
             }
 
             @Override
@@ -151,7 +154,7 @@ public class FirebaseHelper {
     public void saveUserToMyList(String userKey, UserInfoDTO userInfoDTO) {
         databaseReference.child("saved_users").child(userKey).setValue(userInfoDTO);
     }
-    public HashMap<String, String> getStickers() { return sticker_to_user; }
+    public HashMap<String, StickerDTO> getStickers() { return stickers; }
 
     public void saveMyProfile(Uri file, SimpleDraweeView profile) {
         final StorageReference ref = storageRef.child("images/"+MY_USER_ID+".jpg");
@@ -213,7 +216,7 @@ public class FirebaseHelper {
     }
 
     public String getUserKey(String sticker) {
-        return sticker_to_user.get(sticker);
+        return stickers.get(sticker).getTargetUser();
     }
 
     public UserInfoDTO getUser(String userKey) {
@@ -221,10 +224,10 @@ public class FirebaseHelper {
     }
 
     public UserInfoDTO getUserBySticker(String sticker) {
-        String key = sticker_to_user.get(sticker);
+        String key = stickers.get(sticker).getTargetUser();
         if (key == null) {
             return null;
         }
-        return users.get(sticker_to_user.get(sticker));
+        return users.get(stickers.get(sticker).getTargetUser());
     }
 }

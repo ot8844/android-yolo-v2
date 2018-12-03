@@ -140,7 +140,7 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
             final List<Recognition> results = recognizer.recognizeImage(croppedBitmap);
 
             lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
-//            overlayView.setResults(results);
+            overlayView.setResults(results);
             runOnUiThread(() -> {
                 for (View v : recognizedViews) {
                     relativeLayout.removeView(v);
@@ -151,7 +151,7 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
 //                results.add(r1);
 //                results.add(r2);
                 HashMap<String, Pair<RectF, Recognition>> titleMap = overlayView.getTitleBoxMap(results);
-                results.clear();
+                //results.clear();
                 for (Map.Entry<String, Pair<RectF, Recognition>> entry : titleMap.entrySet()) {
                     String title = entry.getKey();
                     RectF box = entry.getValue().first;
@@ -159,6 +159,8 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
                     UserInfoDTO user = fbHelper.getUserBySticker(title);
                     String user_id = fbHelper.getUserKey(title);
 
+                    String magic_string = null;//recognizer.fix(rgbFrameBitmap, fbHelper.getStickers(), box);
+                    double[] rgbs = recognizer.fix_pattern(rgbFrameBitmap, box);
                     Button button = new Button(ClassifierActivity.this);
                     button.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -182,17 +184,23 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
                     rel_btn.topMargin = (int) box.top;
                     button.setLayoutParams(rel_btn);
                     button.setBackgroundColor(getResources().getColor(R.color.control_background));
+                    String btStr = String.format("%s, [%s,%.2f]", "유저 정보 없음", title, recog.getConfidence());
                     if (user != null) {
-                        button.setText(String.format("%s: %s, %.2f", user.getName(), user.getJob(), recog.getConfidence()));
-                    }else{
-                        button.setText(String.format("%s, %.2f", "유저 정보 없음", recog.getConfidence()));
+                        btStr = String.format("%s: %s, [%s,%.2f]", user.getName(), user.getJob(), title, recog.getConfidence());
                     }
+                    if (magic_string != null){
+                        btStr += "\n///" + magic_string;
+                    }
+                    if (rgbs[0] != 0){
+                        btStr += String.format("\n[%.2f, %.2f, %.2f]", rgbs[0], rgbs[1], rgbs[2]);
+                    }
+                    button.setText(btStr);
                     relativeLayout.addView(button);
                     recognizedViews.add(button);
                 }
             });
 //            speak(results);
-//            requestRender();
+            requestRender();
             computing = false;
         });
     }

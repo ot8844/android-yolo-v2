@@ -2,18 +2,21 @@ package org.tensorflow.yolo;
 
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
+import android.graphics.RectF;
 import android.util.Log;
 import android.util.Pair;
 
 import org.tensorflow.contrib.android.TensorFlowInferenceInterface;
 import org.tensorflow.yolo.model.BoxPosition;
 import org.tensorflow.yolo.model.Recognition;
-import org.tensorflow.yolo.model.Sticker;
+import org.tensorflow.yolo.model.StickerDTO;
 import org.tensorflow.yolo.util.ClassAttrProvider;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import static org.tensorflow.yolo.Config.IMAGE_MEAN;
@@ -115,7 +118,7 @@ public class TensorFlowImageRecognizer {
         return dist < 25000;
     }
 
-    private static boolean scan(Bitmap origin, int x, int y, Sticker target_sticker) {
+    private static boolean scan(Bitmap origin, int x, int y, StickerDTO target_sticker) {
         int scan_box_size = 10;
         double scan_rate = 0.8;
         int num_min = (int)(scan_box_size * scan_box_size * scan_rate);
@@ -134,7 +137,10 @@ public class TensorFlowImageRecognizer {
                 int red = (col & 0x00FF0000) >> 16;
                 int green = (col & 0x0000FF00) >> 8;
                 int blue = (col & 0x000000FF);
-                if (pixel_condition(red, green, blue, target_sticker.red, target_sticker.blue, target_sticker.green)){
+                if (pixel_condition(red, green, blue,
+                        target_sticker.getRed(),
+                        target_sticker.getBlue(),
+                        target_sticker.getGreen())){
                     cnt += 1;
                 }
             }
@@ -145,17 +151,17 @@ public class TensorFlowImageRecognizer {
         return cnt >= num_min;
     }
 
-    private static double scan_dist(Bitmap origin, int x, int y, Sticker target_sticker) {
+    private static double scan_dist(Bitmap origin, RectF box, StickerDTO target_sticker) {
         int scan_box_size = 10;
         double scan_rate = 0.8;
         int num_min = (int)(scan_box_size * scan_box_size * scan_rate);
         int width = origin.getWidth();
         int height = origin.getHeight();
         int sum = 0;
-        for (int i=-scan_box_size/2; i<scan_box_size/2; i++){
-            for (int j=-scan_box_size/2; j<scan_box_size/2; j++){
-                int px = i+x;
-                int py = j+y;
+        for (int i=(int)box.left/2; i<(int)box.right/2; i++){
+            for (int j=(int)box.top/2; j<(int)box.bottom/2; j++){
+                int px = i;
+                int py = j;
                 if (px < 0 || px >= width || py < 0 || py >= height) {
                     continue;
                 }
@@ -164,90 +170,143 @@ public class TensorFlowImageRecognizer {
                 int red = (col & 0x00FF0000) >> 16;
                 int green = (col & 0x0000FF00) >> 8;
                 int blue = (col & 0x000000FF);
-                sum += dist_sq(red, green, blue, target_sticker.red, target_sticker.blue, target_sticker.green);
+                sum += dist_sq(red, green, blue,
+                        target_sticker.getRed(),
+                        target_sticker.getBlue(),
+                        target_sticker.getGreen());
             }
         }
         return sum * 1.0 / (scan_box_size*scan_box_size);
     }
+//
+//    public static List<Recognition> find(Bitmap origin, List<StickerDTO> target_sticker){
+//        String tag = "jack";
+//        int width = origin.getWidth();
+//        int height = origin.getHeight();
+//        int cnt = 0;
+//        int cnt_2 = 0;
+//        int x = 0;
+//        int y = 0;
+//        ArrayList<ArrayList<Pair<Integer, Integer>>> true_positions_per_sticker =
+//                new ArrayList<ArrayList<Pair<Integer, Integer>>>();
+//        for (StickerDTO sticker: target_sticker) {
+//            true_positions_per_sticker.add(new ArrayList<Pair<Integer, Integer>>());
+//        }
+//        for (int i = 0; i < width; i++) {
+//            for (int j = 0; j < height; j++) {
+//                int col = origin.getPixel(i, j);
+//                int alpha = col & 0xFF000000;
+//                int red = (col & 0x00FF0000) >> 16;
+//                int green = (col & 0x0000FF00) >> 8;
+//                int blue = (col & 0x000000FF);
+//                if (i == height/2 && j == width/2){
+//                    Log.d(tag, "find: " + red + ","+green+","+blue);
+//                }
+//                int dist = (int) ((red - 255)*(red - 255) + (blue-0)*(blue-0) + (green-0)*(green-0));
+//                if (dist < 5000){
+////                    Log.d(tag, "R: " + red + " G: " + green + " B: " + blue);
+////                    Log.d(tag, "dist : " + dist);
+////                    Log.d(tag, "X: " + i + "Y: " + j);
+//                    cnt +=1;
+//                    x += i;
+//                    y += j;
+//                }
+//                if (red > 210 && blue < 40 && green < 40) {
+//                    cnt_2 +=1;
+//                }
+//                for (int k=0; k<target_sticker.size(); k++) {
+//                    if (scan(origin, i, j, target_sticker.get(k))){
+//                        true_positions_per_sticker.get(k).add(new Pair<Integer, Integer>(i, j));
+//                    }
+//                }
+//            }
+//        }
+//        Log.d(tag, "cnt: " + cnt);
+//        Log.d(tag, "cnt2: " + cnt_2);
+//        ArrayList<Recognition> res = new ArrayList<Recognition>();
+//        if (cnt > 0) {
+//            x = x / cnt;
+//            y = y / cnt;
+//            //res.add(new Recognition(1, "red", 1.0f, new BoxPosition(x - 1, y - 1, 2, 2)));
+//        }
+//        for (int k=0; k<target_sticker.size(); k++) {
+//            ArrayList<Pair<Integer, Integer>> pairs = true_positions_per_sticker.get(k);
+//            StickerDTO sticker = target_sticker.get(k);
+//            int xx = 0;
+//            int yy = 0;
+//            for (Pair<Integer, Integer> pair : pairs) {
+//                xx += pair.first;
+//                yy += pair.second;
+//            }
+//            if (pairs.size() > 0) {
+//                xx = xx / pairs.size();
+//                yy = yy / pairs.size();
+//                res.add(new Recognition(sticker.id,
+//                        sticker.sticker, 1.0f,
+//                        new BoxPosition(xx - 1, yy - 1, 2, 2)));
+//            }
+//        }
+//        return res;
+//    }
 
-    public static List<Recognition> find(Bitmap origin, List<Sticker> target_sticker){
-        String tag = "jack";
-        int width = origin.getWidth();
-        int height = origin.getHeight();
-        int cnt = 0;
-        int cnt_2 = 0;
-        int x = 0;
-        int y = 0;
-        ArrayList<ArrayList<Pair<Integer, Integer>>> true_positions_per_sticker =
-                new ArrayList<ArrayList<Pair<Integer, Integer>>>();
-        for (Sticker sticker: target_sticker) {
-            true_positions_per_sticker.add(new ArrayList<Pair<Integer, Integer>>());
-        }
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                int col = origin.getPixel(i, j);
-                int alpha = col & 0xFF000000;
-                int red = (col & 0x00FF0000) >> 16;
-                int green = (col & 0x0000FF00) >> 8;
-                int blue = (col & 0x000000FF);
-                if (i == height/2 && j == width/2){
-                    Log.d(tag, "find: " + red + ","+green+","+blue);
-                }
-                int dist = (int) ((red - 255)*(red - 255) + (blue-0)*(blue-0) + (green-0)*(green-0));
-                if (dist < 5000){
-//                    Log.d(tag, "R: " + red + " G: " + green + " B: " + blue);
-//                    Log.d(tag, "dist : " + dist);
-//                    Log.d(tag, "X: " + i + "Y: " + j);
-                    cnt +=1;
-                    x += i;
-                    y += j;
-                }
-                if (red > 210 && blue < 40 && green < 40) {
-                    cnt_2 +=1;
-                }
-                for (int k=0; k<target_sticker.size(); k++) {
-                    if (scan(origin, i, j, target_sticker.get(k))){
-                        true_positions_per_sticker.get(k).add(new Pair<Integer, Integer>(i, j));
-                    }
-                }
-            }
-        }
-        Log.d(tag, "cnt: " + cnt);
-        Log.d(tag, "cnt2: " + cnt_2);
-        ArrayList<Recognition> res = new ArrayList<Recognition>();
-        if (cnt > 0) {
-            x = x / cnt;
-            y = y / cnt;
-            //res.add(new Recognition(1, "red", 1.0f, new BoxPosition(x - 1, y - 1, 2, 2)));
-        }
-        for (int k=0; k<target_sticker.size(); k++) {
-            ArrayList<Pair<Integer, Integer>> pairs = true_positions_per_sticker.get(k);
-            Sticker sticker = target_sticker.get(k);
-            int xx = 0;
-            int yy = 0;
-            for (Pair<Integer, Integer> pair : pairs) {
-                xx += pair.first;
-                yy += pair.second;
-            }
-            if (pairs.size() > 0) {
-                xx = xx / pairs.size();
-                yy = yy / pairs.size();
-                res.add(new Recognition(sticker.id,
-                        sticker.sticker, 1.0f,
-                        new BoxPosition(xx - 1, yy - 1, 2, 2)));
-            }
-        }
-        return res;
-    }
-
-    public static Sticker fix(Bitmap origin, List<Sticker> target_sticker, int targetX, int targetY) {
-        Pair<Double, Sticker> true_position = new Pair<>(null, null);
-        for (int k=0; k<target_sticker.size(); k++) {
-            double get_dist = scan_dist(origin, targetX, targetY, target_sticker.get(k));
+    public String fix(Bitmap origin, HashMap<String, StickerDTO> target_sticker, RectF box) {
+        Pair<Double, String> true_position = new Pair<>(null, null);
+        for (Map.Entry<String, StickerDTO> entry : target_sticker.entrySet()) {
+            String name = entry.getKey();
+            StickerDTO dto = entry.getValue();
+            double get_dist = scan_dist(origin, box, dto);
             if (true_position.first == null || true_position.first >= get_dist) {
-                true_position = new Pair<>(get_dist, target_sticker.get(k));
+                true_position = new Pair<>(get_dist, name);
             }
         }
         return true_position.second;
     }
+
+    public double[] fix_pattern(Bitmap origin, RectF box) {
+        double[] rgb = new double[3];
+        rgb[0]=0;
+        rgb[1]=0;
+        rgb[2]=0;
+        int cnt = 0;
+        int width = origin.getWidth();
+        int height = origin.getHeight();
+
+        for (int i=(int)box.left/2; i<(int)box.right/2; i++){
+            for (int j=(int)box.top/2; j<(int)box.bottom/2; j++){
+                if (i < 0 || i >= width || j < 0 || j >= height) {
+                    continue;
+                }
+                int col = origin.getPixel(i, j);
+                int alpha = col & 0xFF000000;
+                rgb[0] += (col & 0x00FF0000) >> 16;
+                rgb[1] += (col & 0x0000FF00) >> 8;
+                rgb[2] += (col & 0x000000FF);
+                cnt += 1;
+            }
+        }
+
+        if (cnt > 0) {
+            rgb[0] /= cnt;
+            rgb[1] /= cnt;
+            rgb[2] /= cnt;
+        }
+        return rgb;
+    }
+
+//    public void draw_magic(Bitmap origin) {
+//        int width = origin.getWidth();
+//        int height = origin.getHeight();
+//
+//        for (int i=0; i<width; i++){
+//            for(int j=0; j<height; j++) {
+//                int col = origin.getPixel(i, j);
+//                int alpha = col & 0xFF000000;
+//                int red = (col & 0x00FF0000) >> 16;
+//                int blue = (col & 0x0000FF00) >> 8;
+//                int green = (col & 0x000000FF);
+//
+//                if red / blue == 0
+//            }
+//        }
+//    }
 }
