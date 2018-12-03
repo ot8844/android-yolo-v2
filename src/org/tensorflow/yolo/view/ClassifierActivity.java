@@ -177,7 +177,8 @@ public class ClassifierActivity extends TextToSpeechActivity implements OnImageA
                     rel_btn.leftMargin = (int) box.left;
                     rel_btn.topMargin = (int) box.top;
                     button.setLayoutParams(rel_btn);
-                    button.setBackgroundColor(getResources().getColor(R.color.control_background));
+                    button.setBackground(getDrawable(R.drawable.circular_popup));
+                    button.setTextColor(getResources().getColor(R.color.black));
                     if (user != null) {
                         button.setText(user.getName() + ":" + user.getJob());
                     }else{
